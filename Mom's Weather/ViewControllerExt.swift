@@ -15,66 +15,63 @@ extension MainViewController {
 	
 	func locationAuthStatus() {
 		
-		
 		let status = CLLocationManager.authorizationStatus()
-		
-		switch status {
-		case .notDetermined:
-			requestAccessToLocation()
-		case .authorizedWhenInUse:
-			print("authorized")
-		case .denied:
-			print("alerted")
-			alertToLocationAccess()
-		case .restricted:
-			break
-		default:
-			print("no authorization")
-			
+	
+			switch status {
+			case .notDetermined:
+				requestAccessToLocation()
+			case .authorizedWhenInUse:
+				printText()
+			case .denied:
+				print("alerted")
+				alertToLocationAccessDenied()
+			case .restricted:
+				if Reachability.isInternetAvailable() == false {
+					alertToLocationAccessRestricted()
+				}
+			default:
+				print("no access")
+			}
 		}
-
+	
+	func printText() {
+		print("access successful")
 	}
 	
 	func locationManagerSetting() {
 		
 		locationManager.delegate = self
 		locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
-		locationManager.startUpdatingLocation()
+		locationManager.requestWhenInUseAuthorization()
 		
+		guard Reachability.isInternetAvailable() == false else {
+			if CLLocationManager.authorizationStatus() != .authorized {
+				print("popup screen")
+			} else {
+				print("use saved location")
+				fetchSavedLocation() // url is useless if internet is not available. Use saved weather data//
+			}
+			return
+		}
+	}
+	
+	func fetchSavedLocation() {
+		
+		do {
+			let savedLocation = try coreDataStack.context.fetch(Locations.fetch)
+			var temporaryLocation = locationManager.location?.coordinate
+			temporaryLocation?.latitude = (savedLocation.last?.latitude)!
+			temporaryLocation?.longitude = (savedLocation.last?.longitude)!
+			
+		} catch {
+			fatalError("no location info")
+		}
 	}
 	
 	func requestAccessToLocation() {
 		locationManager.requestWhenInUseAuthorization()
 	}
-	
-	func getCurrentLocation() {
-	
-		currentLocation = locationManager.location
-		location.latitude = currentLocation?.coordinate.latitude ?? 0.00
-		location.longitude = currentLocation?.coordinate.longitude ?? 0.00
-		
-		var savedLocation = Locations(context: coreDataStack.context)
-		savedLocation.latitude = location.latitude
-		savedLocation.longitude = location.longitude
-		
-		coreDataStack.saveContext()
-		
-		
-		guard CLLocationManager.locationServicesEnabled() else {
-			
-			do {
-				let newLocation = try coreDataStack.context.fetch(Locations.fetch)
-				print("newLocation: \(newLocation.first?.latitude), \(newLocation.last?.latitude)")
-				location.latitude = newLocation.last?.latitude
-				location.longitude = newLocation.last?.longitude
-			} catch {
-				fatalError("no location info")
-			}
-			
-			return
-		}
-	}
-	
+
 	
 	func showCurrentDate() -> String {
 		
@@ -87,10 +84,10 @@ extension MainViewController {
 		return self.date.text!
 	}
 	
-	func alertToLocationAccess() {
+	func alertToLocationAccessDenied() {
 		let alert = UIAlertController(title: "Location services for this app are disabled", message: "Your location is used to display local weather forecasts. Do you allow location access to \"While Using the App\"?", preferredStyle: .alert)
 		let settingAction = UIAlertAction(title: "OpenSetting", style: .default) { _ -> Void in
-			guard let url = URL(string: "prefs:root=General") else {
+			guard let url = URL(string: UIApplicationOpenSettingsURLString) else {
 				return
 			}
 			if UIApplication.shared.canOpenURL(url) {
@@ -100,26 +97,24 @@ extension MainViewController {
 			}
 		}
 		let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-		
+		alert.addAction(settingAction)
 		alert.addAction(cancelAction)
 		present(alert, animated: true, completion: nil)
 	}
 	
+	func alertToLocationAccessRestricted() {
+		let alert = UIAlertController(title: "Location services for this app are restricted", message: "Please check if Internet connection is available", preferredStyle: .alert)
+		let OkAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+		let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+		alert.addAction(OkAction)
+		alert.addAction(cancelAction)
+		present(alert, animated: true, completion: nil)
+	}
+
 }
 
 extension DetailedViewController {
 	
-	func configureTableView() {
-		
-		calendarTableView.delegate = self
-		calendarTableView.dataSource = self
-		
-	}
-	
-	func configureCollectionView() {
-		collectionView.delegate = self
-		collectionView.dataSource = self
-	}
 	
 	func calendarAuthStatus() {
 	
@@ -199,16 +194,6 @@ extension DetailedViewController {
 		}
 	}
 	
-	func showCurrentDate() -> String {
-		
-		let currentDate = Date()
-		let dateFormatter = DateFormatter()
-		dateFormatter.dateFormat = "EEE, MMM dd"
-		let today = dateFormatter.string(from: currentDate)
-		self.date.text = today
-		
-		return self.date.text!
-	}
 
 	func showEventDate(startDate: Date) -> String {
 		

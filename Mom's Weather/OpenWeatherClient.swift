@@ -135,9 +135,11 @@ class OpenWeatherClient {
 	// Mark: Get OpenWeather URL from parameters
 	fileprivate func getOpenWeatherURL(kind: String) -> URL {
 		
+		let currentLocation = CLLocationManager().location
+					
 		let parameters: Dict = [
-			keys.latitude: location.latitude as AnyObject,
-			keys.longitude: location.longitude as AnyObject,
+			keys.latitude: currentLocation!.coordinate.latitude as AnyObject,
+			keys.longitude: currentLocation!.coordinate.longitude as AnyObject,
 			keys.APIKey: values.APIKey as AnyObject
 		]
 		
@@ -145,11 +147,9 @@ class OpenWeatherClient {
 		components.scheme = OpenWeatherBase.APIScheme
 		components.host = OpenWeatherBase.APIHost
 		switch kind {
-			case "current":
+		case "current":
 			components.path = OpenWeatherBase.APIPath
-			case "daily":
-			components.path = OpenWeatherBase.DailyPath
-			case "forecast":
+		case "forecast":
 			components.path = OpenWeatherBase.ForecastPath
 		default:
 			break

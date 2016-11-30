@@ -30,11 +30,8 @@ class DetailedViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
-		configureCollectionView()
-		configureTableView()
-		showCurrentDate()
 	
+		
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -51,14 +48,15 @@ class DetailedViewController: UIViewController {
 			guard let forecast = forecast else {
 				return
 			}
+			
 			let imageOne = self.thingsView.viewWithTag(1) as! UIImageView
 			let imageTwo = self.thingsView.viewWithTag(2) as! UIImageView
 			let imageThree = self.thingsView.viewWithTag(3) as! UIImageView
 
 			let checkedDate = self.dateChecked()
 			
-			guard let i = forecast.index(where: {$0.date == checkedDate && $0.hours == "09" }),
-					let j = forecast.index(where: {$0.date == checkedDate && $0.hours == "15"}) else {
+			guard let ninthHour = forecast.index(where: {$0.date == checkedDate && $0.hours == "09" }),
+					let fifteenthHour = forecast.index(where: {$0.date == checkedDate && $0.hours == "15"}) else {
 					print("failed?")
 					return
 			}
@@ -66,17 +64,17 @@ class DetailedViewController: UIViewController {
 			let status = true
 			
 			switch status {
-			case forecast[i...j].contains(where: {($0.icon! == "01d" || $0.icon! == "01n") && $0.maxTemp! >= 20}):
+			case forecast[ninthHour...fifteenthHour].contains(where: {($0.icon! == "01d" || $0.icon! == "01n") && $0.maxTemp! >= 20}):
 				imageOne.image = #imageLiteral(resourceName: "sunglasses")
 				imageTwo.image = #imageLiteral(resourceName: "sunscreen")
 				imageThree.image = #imageLiteral(resourceName: "waterbottle")
-			case forecast[i...j].contains(where: { $0.maxTemp! >= 20 && !($0.icon! == "01d" || $0.icon! == "01n")}):
+			case forecast[ninthHour...fifteenthHour].contains(where: { $0.maxTemp! >= 20 && !($0.icon! == "01d" || $0.icon! == "01n")}):
 				imageOne.image = #imageLiteral(resourceName: "waterbottle")
 				imageTwo.image = #imageLiteral(resourceName: "sunglasses")
-			case forecast[i...j].contains(where: {($0.icon == "09d" || $0.icon == "09d" || $0.icon == "10d" || $0.icon == "10n")}):
+			case forecast[ninthHour...fifteenthHour].contains(where: {($0.icon == "09d" || $0.icon == "09d" || $0.icon == "10d" || $0.icon == "10n")}):
 				imageOne.image = #imageLiteral(resourceName: "raincoat")
 				imageTwo.image = #imageLiteral(resourceName: "rubberboots")
-			case forecast[i...j].contains(where: { $0.minTemp! <= 5 && $0.icon != ""}):
+			case forecast[ninthHour...fifteenthHour].contains(where: { $0.minTemp! <= 5 && $0.icon != ""}):
 				imageOne.image = #imageLiteral(resourceName: "sweatshirtb")
 			default:
 				imageOne.image = #imageLiteral(resourceName: "anything")
@@ -88,13 +86,10 @@ class DetailedViewController: UIViewController {
 
 extension DetailedViewController: UICollectionViewDelegate, UICollectionViewDataSource {
 	
-	func numberOfSections(in collectionView: UICollectionView) -> Int {
-		return 1
-	}
-	
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-		return 6
-	
+		
+		print("number of items: \(forecast.count)")
+		return 40
 	}
 	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -108,9 +103,11 @@ extension DetailedViewController: UICollectionViewDelegate, UICollectionViewData
 				}
 				
 				let forecast = forecasts[indexPath.row]
-	
+				
 				cell.configureCollectionViewCell(hourly: forecast)
+				self.date.text = forecast.date
 				self.location.text = forecast.city
+	
 				self.changeColor.viewColor(icon: cell.iconImageView.image!, view: cell.hourView)
 				self.changeColor.viewGradient(view: cell.hourView, start: 0.1, end: 1.0)
 				

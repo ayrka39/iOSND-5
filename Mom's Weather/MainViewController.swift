@@ -11,7 +11,7 @@ import CoreLocation
 import CoreData
 
 
-class MainViewController: UIViewController, CLLocationManagerDelegate {
+class MainViewController: UIViewController {
 
 	@IBOutlet weak var date: UILabel!
 	@IBOutlet weak var place: UILabel!
@@ -40,13 +40,12 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
 		
 		showCurrentDate()
 		locationManagerSetting()
-		
-		getCurrentLocation()
+
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-		
+
 		getCurrentWeatherData()
 		getUpcomingData()
 	}
@@ -82,24 +81,24 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
 			guard let forecast = forecast else {
 				return
 			}
-			guard let i = forecast.index(where: {$0.hours == "06"}),
-					let j = forecast.index(where: {$0.hours == "09"}),
-					let k = forecast.index(where: {$0.hours == "12"}),
-					let m = forecast.index(where: {$0.hours == "15"}) else {
+			guard let sixthHour = forecast.index(where: {$0.hours == "06"}),
+					let ninthHour = forecast.index(where: {$0.hours == "09"}),
+					let twelfthHour = forecast.index(where: {$0.hours == "12"}),
+					let fifteenthHour = forecast.index(where: {$0.hours == "15"}) else {
 				return
 			}
 			
-			let sixTemp = forecast[i].minTemp!
-			let nineTemp = forecast[j].maxTemp!
-			let noonMinTemp = forecast[k].minTemp!
-			let noonMaxTemp = forecast[k].maxTemp!
-			let threeMinTemp = forecast[m].minTemp!
-			let threeMaxTemp = forecast[m].maxTemp!
+			let sixTemp = forecast[sixthHour].minTemp!
+			let nineTemp = forecast[ninthHour].maxTemp!
+			let noonMinTemp = forecast[twelfthHour].minTemp!
+			let noonMaxTemp = forecast[twelfthHour].maxTemp!
+			let threeMinTemp = forecast[fifteenthHour].minTemp!
+			let threeMaxTemp = forecast[fifteenthHour].maxTemp!
 			let afternoonMinTemp = min(noonMinTemp, threeMinTemp)
 			let afternoonMaxTemp = max(noonMaxTemp, threeMaxTemp)
-			let nineIcon = forecast[j].icon!
-			let noonIcon = forecast[k].icon!
-			var threeIcon = forecast[m].icon!
+			let nineIcon = forecast[ninthHour].icon!
+			let noonIcon = forecast[twelfthHour].icon!
+			var threeIcon = forecast[fifteenthHour].icon!
 			
 			DispatchQueue.main.async {
 				
@@ -118,20 +117,24 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
 				}
 				
 				self.morningIcon.image = UIImage(named: nineIcon)
-				
-				if noonIcon == threeIcon {
-					self.afternoonIcon.image = UIImage(named: noonIcon)
-				} else {
-					switch threeIcon {
-					case "01n":
-						threeIcon = "01d"
-					case "02n":
-						threeIcon = "02d"
-					default:
-						break
-					}
-					self.afternoonIcon.image = UIImage(named: threeIcon)
+				switch nineIcon {
+				case "01n":
+					self.morningIcon.image = #imageLiteral(resourceName: "01d")
+				case "02n":
+					self.morningIcon.image = #imageLiteral(resourceName: "02d")
+				default:
+					break
 				}
+				self.afternoonIcon.image = UIImage(named: noonIcon)
+				switch noonIcon {
+				case "01n":
+					self.afternoonIcon.image = #imageLiteral(resourceName: "01d")
+				case "02n":
+					self.afternoonIcon.image = #imageLiteral(resourceName: "02d")
+				default:
+					break
+				}
+				
 				self.changeColor.viewColor(icon: self.morningIcon.image!, view: self.morningView)
 				self.changeColor.viewGradient(view: self.morningView, start: 0.1, end: 1.0)
 				
@@ -143,7 +146,43 @@ class MainViewController: UIViewController, CLLocationManagerDelegate {
 	
 }
 
+extension MainViewController: CLLocationManagerDelegate {
+	func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+		guard let llocation = locations.first else {
+			return
+		}
+		print("found: \(llocation.coordinate.latitude)")
+		let savedLocation = Locations(context: self.coreDataStack.context)
+		savedLocation.latitude = llocation.coordinate.latitude
+		savedLocation.longitude = llocation.coordinate.longitude
+		print("saved: \(savedLocation.latitude)")
+	}
+	
+	func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+		let status = CLLocationManager.authorizationStatus()
+		
+		switch status {
+		case .notDetermined:
+			requestAccessToLocation()
+		case .authorizedWhenInUse:
+			locationManager.stopUpdatingLocation()
+		case .denied:
+			print("alerted")
+			alertToLocationAccessDenied()
+		case .restricted:
+			if Reachability.isInternetAvailable() == false {
+				alertToLocationAccessRestricted()
+			}
+		default:
+			print("no access")
+		}
+	
+	}
 
+	func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+		print("failed to find user's location \(error.localizedDescription)")
+	}
+}
 
 extension Locations {
 	
