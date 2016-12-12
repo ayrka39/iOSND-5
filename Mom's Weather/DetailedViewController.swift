@@ -22,8 +22,6 @@ class DetailedViewController: UIViewController {
 	@IBOutlet weak var thingsView: UIView!
 	@IBOutlet weak var connectionWarningView: UIView!
 
-	
-	var openWeatherClient = OpenWeatherClient.shared
 	var changeColor = ChangeColor.shared
 	var forecasts: [Forecast]?
 	let eventStore = EKEventStore()

@@ -114,11 +114,12 @@ class MainViewController: UIViewController {
 	
 
 	func getUpcomingData() {
-		upcomingDataSpinnerStart()
+		
 		deleteForecastRecords()
+		morningDataSpinner.startAnimating()
+		afternoonDataSpinner.startAnimating()
 		openWeatherClient.getForecastData()
-		
-		
+				
 		DispatchQueue.main.async {
 			
 			print("fetchedUpcomingData: \(self.fetchedUpcomingData.count)")
@@ -179,7 +180,8 @@ class MainViewController: UIViewController {
 			self.changeColor.viewGradient(view: self.afternoonView, start: 0.1, end: 1.0)
 			
 		}
-		self.upcomingDataSpinnerStop()
+		morningDataSpinner.stopAnimating()
+		afternoonDataSpinner.stopAnimating()
 	}
 	
 }

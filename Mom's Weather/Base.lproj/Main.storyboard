@@ -757,6 +757,9 @@ Please check if Internet connection is available.</string>
                                     <outlet property="delegate" destination="BdT-Wi-sq8" id="b1d-vk-iXM"/>
                                 </connections>
                             </tableView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="7jj-J3-op6">
+                                <rect key="frame" x="150" y="135" width="20" height="20"/>
+                            </activityIndicatorView>
                             <tableView clipsSubviews="YES" tag="2" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="soj-5y-aKJ">
                                 <rect key="frame" x="0.0" y="270" width="320" height="251"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -816,9 +819,13 @@ Please check if Internet connection is available.</string>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="soj-5y-aKJ" firstAttribute="top" secondItem="8ZL-Qx-QyV" secondAttribute="bottom" constant="38" id="3Ot-gw-Bzv"/>
+                            <constraint firstItem="7jj-J3-op6" firstAttribute="top" secondItem="jhf-Pk-aWe" secondAttribute="bottom" constant="115" id="CYd-5z-e1z"/>
+                            <constraint firstItem="soj-5y-aKJ" firstAttribute="top" secondItem="7jj-J3-op6" secondAttribute="bottom" constant="115" id="GBN-73-Hsu"/>
                             <constraint firstAttribute="trailing" secondItem="ZoB-bd-OP7" secondAttribute="trailing" id="H05-VM-MMj"/>
                             <constraint firstAttribute="bottom" secondItem="ZoB-bd-OP7" secondAttribute="bottom" id="MPb-QZ-eHs"/>
                             <constraint firstItem="8ZL-Qx-QyV" firstAttribute="leading" secondItem="alp-PW-OYl" secondAttribute="leading" id="Olu-Xd-buu"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="7jj-J3-op6" secondAttribute="trailing" constant="134" id="Tee-Zr-qaK"/>
+                            <constraint firstItem="7jj-J3-op6" firstAttribute="leading" secondItem="alp-PW-OYl" secondAttribute="leadingMargin" constant="134" id="YPv-yx-ixY"/>
                             <constraint firstItem="ZoB-bd-OP7" firstAttribute="top" secondItem="alp-PW-OYl" secondAttribute="top" id="ZyU-76-15L"/>
                             <constraint firstItem="ZoB-bd-OP7" firstAttribute="leading" secondItem="alp-PW-OYl" secondAttribute="leading" id="bJy-zr-tTt"/>
                             <constraint firstAttribute="trailing" secondItem="8ZL-Qx-QyV" secondAttribute="trailing" id="daL-z8-zK7"/>
@@ -831,6 +838,7 @@ Please check if Internet connection is available.</string>
                     <connections>
                         <outlet property="connectionWarningView" destination="ZoB-bd-OP7" id="1zc-z4-GNX"/>
                         <outlet property="favTableView" destination="soj-5y-aKJ" id="b0j-WF-AB1"/>
+                        <outlet property="searchSpinner" destination="7jj-J3-op6" id="215-77-IRE"/>
                         <outlet property="searchTableView" destination="8ZL-Qx-QyV" id="kyE-ja-6J3"/>
                     </connections>
                 </viewController>

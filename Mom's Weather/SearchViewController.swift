@@ -17,6 +17,7 @@ class SearchViewController: UIViewController {
 	
 	@IBOutlet weak var searchTableView: UITableView!
 	@IBOutlet weak var favTableView: UITableView!
+	@IBOutlet weak var searchSpinner: UIActivityIndicatorView!
 	@IBOutlet weak var connectionWarningView: UIView!
 
 	
@@ -39,6 +40,7 @@ class SearchViewController: UIViewController {
 		searchController.loadViewIfNeeded()
 		searchControllerSetting()
 		fetchData()
+		searchSpinner.stopAnimating()
 //		tableViewColor()
 		
 	}
@@ -50,6 +52,7 @@ extension SearchViewController: UISearchBarDelegate {
 	func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
 		searchCompleter.queryFragment = searchController.searchBar.text!
 		searchCompleter.filterType = .locationsOnly
+		
 	}
 	
 	func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -186,17 +189,18 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		if tableView.tag == 1 {
 			let cell = searchTableView.cellForRow(at: indexPath) as! SearchCell
-			getCoordates(place: "\(cell.placeLabel.text!)")
+			getCoordinates(place: "\(cell.placeLabel.text!)")
 
 		} else {
 		let cell = favTableView.cellForRow(at: indexPath) as! FavoriteCell
-			getCoordates(place: "\(cell.favoriteLabel.text!)")
+			getCoordinates(place: "\(cell.favoriteLabel.text!)")
 
 		}
 	}
 	
-	func getCoordates(place: String) {
+	func getCoordinates(place: String) {
 		let geocoder = CLGeocoder()
+		self.searchSpinner.startAnimating()
 		geocoder.geocodeAddressString(place) { (placemarks, error) in
 			
 			guard let placemark = placemarks?.last else {
@@ -206,12 +210,14 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 			location.latitude = (placemark.location?.coordinate.latitude)!
 			location.longitude = (placemark.location?.coordinate.longitude)!
 			print("location: \(location.latitude), \(location.longitude)")
-			
+			self.searchSpinner.stopAnimating()
 			DispatchQueue.main.async {
+				
 				self.coreDataStack.saveContext()
 				let destination = self.storyboard?.instantiateViewController(withIdentifier: "tabBarController") as! UITabBarController
 				self.present(destination, animated: true, completion: nil)
-			}			
+			}
+			
 		}
 
 	}
