@@ -62,22 +62,23 @@ extension MainViewController {
 	func deleteCurrentRecords() {
 		
 		if Reachability.isInternetAvailable() == true {
-			let object = fetchedCurrentData.first
+			let object = fetchedCurrentData.last
+			print("obj: \(object)")
 			guard object == nil else {
-				
-				openWeatherClient.getCurrentWeatherData()
+				let currentDataRequest = CurrentWeather.fetch
+				do {
+					let deleteRequest = NSBatchDeleteRequest(fetchRequest: currentDataRequest as! NSFetchRequest<NSFetchRequestResult>)
+					_ = try coreDataStack.context.execute(deleteRequest)
+					
+					coreDataStack.saveContext()
+				} catch {
+					fatalError("Failed removing saved records")
+				}
+
 				return
 			}
-			let currentDataRequest = CurrentWeather.fetch
-			do {
-				let deleteRequest = NSBatchDeleteRequest(fetchRequest: currentDataRequest as! NSFetchRequest<NSFetchRequestResult>)
-				_ = try coreDataStack.context.execute(deleteRequest)
-				
-				coreDataStack.saveContext()
-			} catch {
-				fatalError("Failed removing saved records")
-			}
-			
+			print("//1")
+			openWeatherClient.getCurrentWeatherData()
 			
 		}
 	}
@@ -166,7 +167,7 @@ extension DetailedViewController {
 	func connectionWarning() {
 		
 		if Reachability.isInternetAvailable() == false {
-			print("reachability works - detail")
+			
 			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
 				connectionWarningView.isHidden = true
 				print("fallthrough")
@@ -193,7 +194,7 @@ extension DetailedViewController {
 			loadEvents()
 			refreshTableView()
 		case EKAuthorizationStatus.restricted, EKAuthorizationStatus.denied:
-			print("no access")
+			alertToLocationAccessRestricted()
 		}
 	}
 
@@ -249,6 +250,16 @@ extension DetailedViewController {
 		}
 		return eventDate
 	}
+	
+	func alertToLocationAccessRestricted() {
+		let alert = UIAlertController(title: "Calendar for this app is restricted", message: "Please check if Internet connection is available", preferredStyle: .alert)
+		let OkAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+		let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+		alert.addAction(OkAction)
+		alert.addAction(cancelAction)
+		present(alert, animated: true, completion: nil)
+	}
+
 	
 	// get a formatted date value from parsed data
 	func extractDate(dateNumber: Date) -> String {

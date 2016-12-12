@@ -187,11 +187,11 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 		if tableView.tag == 1 {
 			let cell = searchTableView.cellForRow(at: indexPath) as! SearchCell
 			getCoordates(place: "\(cell.placeLabel.text!)")
-			getWeatherData()
+
 		} else {
 		let cell = favTableView.cellForRow(at: indexPath) as! FavoriteCell
 			getCoordates(place: "\(cell.favoriteLabel.text!)")
-			getWeatherData()
+
 		}
 	}
 	
@@ -205,18 +205,17 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 			let location = Locations(context: self.coreDataStack.context)
 			location.latitude = (placemark.location?.coordinate.latitude)!
 			location.longitude = (placemark.location?.coordinate.longitude)!
+			print("location: \(location.latitude), \(location.longitude)")
 			
 			DispatchQueue.main.async {
 				self.coreDataStack.saveContext()
+				let destination = self.storyboard?.instantiateViewController(withIdentifier: "tabBarController") as! UITabBarController
+				self.present(destination, animated: true, completion: nil)
 			}			
 		}
 
 	}
-	
-	func getWeatherData() {
-		let destination = storyboard?.instantiateViewController(withIdentifier: "tabBarController")
-		present(destination!, animated: true, completion: nil)
-	}
+
 }
 
 extension SearchViewController: NSFetchedResultsControllerDelegate {

@@ -151,31 +151,33 @@ class OpenWeatherClient {
 	fileprivate func getOpenWeatherURL(kind: String) -> URL {
 		var parameters: Dict
 		// From user location
-		print("saved? \(location?.first?.latitude)")
-		if location?.first?.latitude == nil {
+		do {
+			location = try CoreDataStack.shared.context.fetch(Locations.fetch)
+			
+			print("saved? \(location?.last?.latitude)")
+		} catch {
+			fatalError("no info")
+		}
+		if location?.last?.latitude == nil {
+			
 			let currentLocation = CLLocationManager().location?.coordinate
+			print("current: \(currentLocation)")
 			parameters = [
 				keys.latitude: currentLocation?.latitude as AnyObject,
 				keys.longitude: currentLocation?.longitude as AnyObject,
 				keys.APIKey: values.APIKey as AnyObject
 			]
-			print("current: \(currentLocation?.latitude)")
-		
+			
 			// From selected or saved location
 		} else {
-			do {
-				location = try CoreDataStack.shared.context.fetch(Locations.fetch)
-				let latitude = location?.first?.latitude
-				let longitude = location?.first?.longitude
-				parameters = [
-					keys.latitude: latitude as AnyObject,
-					keys.longitude: longitude as AnyObject,
-					keys.APIKey: values.APIKey as AnyObject
-				]
-				print("lat: \(latitude), lon: \(longitude)")
-			} catch {
-				fatalError("no info")
-			}
+			let latitude = location?.last?.latitude
+			let longitude = location?.last?.longitude
+			parameters = [
+				keys.latitude: latitude as AnyObject,
+				keys.longitude: longitude as AnyObject,
+				keys.APIKey: values.APIKey as AnyObject
+			]
+
 		}
 		var components = URLComponents()
 		components.scheme = OpenWeatherBase.APIScheme
@@ -194,9 +196,9 @@ class OpenWeatherClient {
 			let queryItem = URLQueryItem(name: key, value: "\(value)")
 			components.queryItems!.append(queryItem)
 		}
-//		print("url \(components.url!)")
+		print("url \(components.url!)")
 		return components.url!
-		
+
 	}
 	// Mark: Convert Kevin value to Celcius
 	func convertKtoC(kelvin: Double) -> Int {

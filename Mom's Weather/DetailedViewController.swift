@@ -50,7 +50,7 @@ class DetailedViewController: UIViewController {
 	
 	func changeThings() {
 	
-//		DispatchQueue.main.async {
+		DispatchQueue.main.async {
 			do {
 				let fetchedData = try CoreDataStack.shared.context.fetch(Forecast.fetch)
 				
@@ -93,7 +93,7 @@ class DetailedViewController: UIViewController {
 			}
 			self.changeColor.viewColor(icon: UIImage(named: (self.forecasts?[1].icon)!)!, view: self.thingsView)
 			self.changeColor.viewGradient(view: self.thingsView, start: 1.0, end: 0.1)
-//		}
+		}
 	}
 }
 
