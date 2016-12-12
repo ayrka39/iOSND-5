@@ -18,11 +18,11 @@ For more details, you can check https://openweathermap.org/api
 
 ### Screenshots ###
 
-![main](http://d.pr/i/MprT)
+![main](https://www.dropbox.com/s/byclfzpiaaq7siv/Screen%20Shot_app_01.png)
 * Main page - shows current and tomorrow's data
 
-![detail](http://d.pr/i/fcXL)
+![detail](https://www.dropbox.com/s/mlnoupauqssj7dn/Screen%20Shot_app_02.png)
 * Detailed page - five days of data, reminder and calendar events
 
-![search](http://d.pr/i/2NRa)
+![search](https://www.dropbox.com/s/jcn6ndrvi6e6v4x/Screen%20Shot_app_03.png)
 * Search page - able to search for places and store favorite
