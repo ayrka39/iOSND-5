@@ -7,13 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3C0503961DEBA5B20066E9A4 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0503951DEBA5B20066E9A4 /* SearchViewController.swift */; };
+		3C0503981DEBAFAB0066E9A4 /* SearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0503971DEBAFAB0066E9A4 /* SearchCell.swift */; };
+		3C05039C1DEC91E70066E9A4 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C05039B1DEC91E70066E9A4 /* Reachability.swift */; };
 		3C44CDC71DEA4ADF00F23805 /* weatherForMom.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3C44CDC51DEA4ADF00F23805 /* weatherForMom.xcdatamodeld */; };
+		3CA887881DF8BB1B00F97E02 /* FavoriteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA887871DF8BB1B00F97E02 /* FavoriteCell.swift */; };
 		3CC1F31D1DC89DB20014DA37 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC1F31C1DC89DB20014DA37 /* Constants.swift */; };
 		3CC1F31F1DC89E1C0014DA37 /* OpenWeatherClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC1F31E1DC89E1C0014DA37 /* OpenWeatherClient.swift */; };
 		3CD2ECB81DE11BC30015D63D /* CalendarCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD2ECB71DE11BC30015D63D /* CalendarCell.swift */; };
-		3CD2ECF11DE63A580015D63D /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD2ECEE1DE63A580015D63D /* Location.swift */; };
-		3CD2ECF21DE63A580015D63D /* Forecast.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD2ECEF1DE63A580015D63D /* Forecast.swift */; };
-		3CD2ECF31DE63A580015D63D /* CurrentWeather.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD2ECF01DE63A580015D63D /* CurrentWeather.swift */; };
 		3CD83DDD1DDD593E00A927A7 /* WeatherCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD83DDC1DDD593E00A927A7 /* WeatherCell.swift */; };
 		3CD83DDF1DDE3C2E00A927A7 /* DetailedViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD83DDE1DDE3C2E00A927A7 /* DetailedViewController.swift */; };
 		3CD83DE11DDE7A2500A927A7 /* ViewControllerExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CD83DE01DDE7A2500A927A7 /* ViewControllerExt.swift */; };
@@ -27,13 +28,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3C0503951DEBA5B20066E9A4 /* SearchViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		3C0503971DEBAFAB0066E9A4 /* SearchCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchCell.swift; sourceTree = "<group>"; };
+		3C05039B1DEC91E70066E9A4 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		3C44CDC61DEA4ADF00F23805 /* weatherForMom.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = weatherForMom.xcdatamodel; sourceTree = "<group>"; };
+		3CA887871DF8BB1B00F97E02 /* FavoriteCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoriteCell.swift; sourceTree = "<group>"; };
 		3CC1F31C1DC89DB20014DA37 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		3CC1F31E1DC89E1C0014DA37 /* OpenWeatherClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenWeatherClient.swift; sourceTree = "<group>"; };
 		3CD2ECB71DE11BC30015D63D /* CalendarCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CalendarCell.swift; sourceTree = "<group>"; };
-		3CD2ECEE1DE63A580015D63D /* Location.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
-		3CD2ECEF1DE63A580015D63D /* Forecast.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Forecast.swift; sourceTree = "<group>"; };
-		3CD2ECF01DE63A580015D63D /* CurrentWeather.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentWeather.swift; sourceTree = "<group>"; };
 		3CD83DDC1DDD593E00A927A7 /* WeatherCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherCell.swift; sourceTree = "<group>"; };
 		3CD83DDE1DDE3C2E00A927A7 /* DetailedViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailedViewController.swift; sourceTree = "<group>"; };
 		3CD83DE01DDE7A2500A927A7 /* ViewControllerExt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewControllerExt.swift; sourceTree = "<group>"; };
@@ -64,6 +66,8 @@
 			children = (
 				3CD83DDC1DDD593E00A927A7 /* WeatherCell.swift */,
 				3CD2ECB71DE11BC30015D63D /* CalendarCell.swift */,
+				3C0503971DEBAFAB0066E9A4 /* SearchCell.swift */,
+				3CA887871DF8BB1B00F97E02 /* FavoriteCell.swift */,
 			);
 			name = "Custom Cells";
 			sourceTree = "<group>";
@@ -100,9 +104,7 @@
 			children = (
 				3C44CDC51DEA4ADF00F23805 /* weatherForMom.xcdatamodeld */,
 				3CC1F31C1DC89DB20014DA37 /* Constants.swift */,
-				3CD2ECEE1DE63A580015D63D /* Location.swift */,
-				3CD2ECEF1DE63A580015D63D /* Forecast.swift */,
-				3CD2ECF01DE63A580015D63D /* CurrentWeather.swift */,
+				3C05039B1DEC91E70066E9A4 /* Reachability.swift */,
 				3CC1F31E1DC89E1C0014DA37 /* OpenWeatherClient.swift */,
 			);
 			name = Model;
@@ -115,6 +117,7 @@
 				3CECB29C1DC7A15000672697 /* LaunchScreen.storyboard */,
 				3CD83DE01DDE7A2500A927A7 /* ViewControllerExt.swift */,
 				3CD83DE21DDE9B2600A927A7 /* ChangeColor.swift */,
+				3CD2ECBB1DE136750015D63D /* Custom Cells */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -124,7 +127,7 @@
 			children = (
 				3CECB2AD1DC7A23900672697 /* MainViewController.swift */,
 				3CD83DDE1DDE3C2E00A927A7 /* DetailedViewController.swift */,
-				3CD2ECBB1DE136750015D63D /* Custom Cells */,
+				3C0503951DEBA5B20066E9A4 /* SearchViewController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -218,6 +221,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3C0503961DEBA5B20066E9A4 /* SearchViewController.swift in Sources */,
+				3C0503981DEBAFAB0066E9A4 /* SearchCell.swift in Sources */,
 				3CECB2B01DC7A23900672697 /* MainViewController.swift in Sources */,
 				3CD2ECB81DE11BC30015D63D /* CalendarCell.swift in Sources */,
 				3CD83DE31DDE9B2600A927A7 /* ChangeColor.swift in Sources */,
@@ -225,12 +230,11 @@
 				3C44CDC71DEA4ADF00F23805 /* weatherForMom.xcdatamodeld in Sources */,
 				3CECB2911DC7A15000672697 /* AppDelegate.swift in Sources */,
 				3CD83DDF1DDE3C2E00A927A7 /* DetailedViewController.swift in Sources */,
-				3CD2ECF21DE63A580015D63D /* Forecast.swift in Sources */,
 				3CC1F31F1DC89E1C0014DA37 /* OpenWeatherClient.swift in Sources */,
 				3CD83DDD1DDD593E00A927A7 /* WeatherCell.swift in Sources */,
-				3CD2ECF31DE63A580015D63D /* CurrentWeather.swift in Sources */,
 				3CC1F31D1DC89DB20014DA37 /* Constants.swift in Sources */,
-				3CD2ECF11DE63A580015D63D /* Location.swift in Sources */,
+				3CA887881DF8BB1B00F97E02 /* FavoriteCell.swift in Sources */,
+				3C05039C1DEC91E70066E9A4 /* Reachability.swift in Sources */,
 				3CECB2AA1DC7A1F000672697 /* CoreDataStack.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -18,9 +18,24 @@ class WeatherCell: UICollectionViewCell {
 	
 	func configureCollectionViewCell(hourly: Forecast) {
 		
-		hourLabel.text = hourly.hours
-		iconImageView.image = UIImage(named:hourly.icon!)
-		tempLabel.text = "\(hourly.minTemp!)°"
+		if hourly.hours == "00" {
+			hourLabel.text = dayOfWeek(date: hourly.date!)
+		} else {
+			hourLabel.text = hourly.hours
+		}
+		guard let icon = hourly.icon else {
+			return
+		}
+		iconImageView.image = UIImage(named: icon)
+		tempLabel.text = "\(hourly.minTemp)°"
 		
+	}
+	
+	func dayOfWeek(date: NSDate) -> String {
+		
+		let dateFormatter = DateFormatter()
+		dateFormatter.dateFormat = "EEE"
+		let forecastDate = dateFormatter.string(from: date as Date)
+		return forecastDate
 	}
 }

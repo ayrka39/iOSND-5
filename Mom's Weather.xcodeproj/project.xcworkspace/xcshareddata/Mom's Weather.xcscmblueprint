@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "5D530CBF3E93CDF28C3AEA4DE2526EF633DD00A9",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "5D530CBF3E93CDF28C3AEA4DE2526EF633DD00A9" : 9223372036854775807,
+    "DE7B7CF1ABE33184C50ED02EBEA19C1BE96DAD79" : 9223372036854775807
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "65831195-5C12-4BEB-8AA6-22D1334EE462",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "5D530CBF3E93CDF28C3AEA4DE2526EF633DD00A9" : "WeatherForMom\/",
+    "DE7B7CF1ABE33184C50ED02EBEA19C1BE96DAD79" : ""
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "Mom's Weather",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "Mom's Weather.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/ayrka39\/iOSND-5.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "5D530CBF3E93CDF28C3AEA4DE2526EF633DD00A9"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/ayrak39\/iOSND-P2.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "DE7B7CF1ABE33184C50ED02EBEA19C1BE96DAD79"
+    }
+  ]
+}

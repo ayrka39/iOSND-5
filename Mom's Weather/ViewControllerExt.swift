@@ -9,72 +9,104 @@
 import Foundation
 import UIKit
 import EventKit
+import CoreData
 import CoreLocation
+
+// MARK: MainViewController extension
 
 extension MainViewController {
 	
 	func locationAuthStatus() {
 		
-		
 		let status = CLLocationManager.authorizationStatus()
-		
-		switch status {
-		case .notDetermined:
-			requestAccessToLocation()
-		case .authorizedWhenInUse:
-			print("authorized")
-		case .denied:
-			print("alerted")
-			alertToLocationAccess()
-		case .restricted:
-			break
-		default:
-			print("no authorization")
-			
+	
+			switch status {
+			case .notDetermined:
+				requestAccessToLocation()
+			case .authorizedWhenInUse:
+				print("accessed")
+			case .denied:
+				print("alerted")
+				alertToLocationAccessDenied()
+			case .restricted:
+				if Reachability.isInternetAvailable() == false {
+					alertToLocationAccessRestricted()
+				}
+			default:
+				print("no access")
+			}
 		}
-
-	}
 	
 	func locationManagerSetting() {
 		
-		locationManager.delegate = self
-		locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
-		locationManager.startUpdatingLocation()
+		if Reachability.isInternetAvailable() == false {
+			print("reachability works")
+			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+				connectionWarningView.isHidden = true
+				print("fallthrough")
+			} else {
+				print("access alert")
+				centerPopup.constant = 0
+				currentWeatherView.isHidden = true
+				morningView.isHidden = true
+				afternoonView.isHidden = true
+			}
+		}
 		
 	}
 	
 	func requestAccessToLocation() {
 		locationManager.requestWhenInUseAuthorization()
 	}
-	
-	func getCurrentLocation() {
-	
-		currentLocation = locationManager.location
-		location.latitude = currentLocation?.coordinate.latitude ?? 0.00
-		location.longitude = currentLocation?.coordinate.longitude ?? 0.00
+
+	func deleteCurrentRecords() {
 		
-		var savedLocation = Locations(context: coreDataStack.context)
-		savedLocation.latitude = location.latitude
-		savedLocation.longitude = location.longitude
-		
-		coreDataStack.saveContext()
-		
-		
-		guard CLLocationManager.locationServicesEnabled() else {
-			
+		if Reachability.isInternetAvailable() == true {
+			let object = fetchedCurrentData.first
+			guard object == nil else {
+				
+				openWeatherClient.getCurrentWeatherData()
+				return
+			}
+			let currentDataRequest = CurrentWeather.fetch
 			do {
-				let newLocation = try coreDataStack.context.fetch(Locations.fetch)
-				print("newLocation: \(newLocation.first?.latitude), \(newLocation.last?.latitude)")
-				location.latitude = newLocation.last?.latitude
-				location.longitude = newLocation.last?.longitude
+				let deleteRequest = NSBatchDeleteRequest(fetchRequest: currentDataRequest as! NSFetchRequest<NSFetchRequestResult>)
+				_ = try coreDataStack.context.execute(deleteRequest)
+				
+				coreDataStack.saveContext()
 			} catch {
-				fatalError("no location info")
+				fatalError("Failed removing saved records")
 			}
 			
-			return
+			
 		}
 	}
 	
+	func deleteForecastRecords() {
+		
+		if Reachability.isInternetAvailable() == true {
+			
+			let forecastDataRequest = Forecast.fetch
+			
+			do {
+				let deleteRequest = NSBatchDeleteRequest(fetchRequest: forecastDataRequest as! NSFetchRequest<NSFetchRequestResult>)
+				_ = try CoreDataStack.shared.context.execute(deleteRequest)
+				
+			} catch {
+				fatalError("Failed removing saved records")
+			}
+		}
+	}
+	
+	func upcomingDataSpinnerStart() {
+		morningDataSpinner.startAnimating()
+		afternoonDataSpinner.startAnimating()
+	}
+	
+	func upcomingDataSpinnerStop() {
+		morningDataSpinner.stopAnimating()
+		afternoonDataSpinner.stopAnimating()
+	}
 	
 	func showCurrentDate() -> String {
 		
@@ -87,10 +119,20 @@ extension MainViewController {
 		return self.date.text!
 	}
 	
-	func alertToLocationAccess() {
+	// get a formatted date value from parsed data
+	func extractDate(dateNumber: Double) -> String {
+		let convertedDate = Date(timeIntervalSince1970: dateNumber)
+		let dateFormatter = DateFormatter()
+		dateFormatter.dateFormat = "EEE, MMM dd"
+		let date = dateFormatter.string(from: convertedDate)
+		return date
+		
+	}
+	
+	func alertToLocationAccessDenied() {
 		let alert = UIAlertController(title: "Location services for this app are disabled", message: "Your location is used to display local weather forecasts. Do you allow location access to \"While Using the App\"?", preferredStyle: .alert)
 		let settingAction = UIAlertAction(title: "OpenSetting", style: .default) { _ -> Void in
-			guard let url = URL(string: "prefs:root=General") else {
+			guard let url = URL(string: UIApplicationOpenSettingsURLString) else {
 				return
 			}
 			if UIApplication.shared.canOpenURL(url) {
@@ -100,26 +142,45 @@ extension MainViewController {
 			}
 		}
 		let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-		
+		alert.addAction(settingAction)
 		alert.addAction(cancelAction)
 		present(alert, animated: true, completion: nil)
 	}
 	
+	func alertToLocationAccessRestricted() {
+		let alert = UIAlertController(title: "Location services for this app are restricted", message: "Please check if Internet connection is available", preferredStyle: .alert)
+		let OkAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+		let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+		alert.addAction(OkAction)
+		alert.addAction(cancelAction)
+		present(alert, animated: true, completion: nil)
+	}
+
 }
+
+// MARK: DetailedViewController extension
 
 extension DetailedViewController {
 	
-	func configureTableView() {
+	
+	func connectionWarning() {
 		
-		calendarTableView.delegate = self
-		calendarTableView.dataSource = self
-		
+		if Reachability.isInternetAvailable() == false {
+			print("reachability works - detail")
+			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+				connectionWarningView.isHidden = true
+				print("fallthrough")
+			} else {
+				print("access alert")
+				connectionWarningView.isHidden = false
+			}
+		} else {
+			connectionWarningView.isHidden = true
+			calendarAuthStatus()
+		}
+
 	}
 	
-	func configureCollectionView() {
-		collectionView.delegate = self
-		collectionView.dataSource = self
-	}
 	
 	func calendarAuthStatus() {
 	
@@ -158,7 +219,7 @@ extension DetailedViewController {
 	func loadEvents() {
 
 		let startDate = Date()
-		let endDate = Date(timeIntervalSinceNow: 60*60*24)
+		let endDate = Date(timeIntervalSinceNow: 60*60*24*30)
 		let eventsPredicate = eventStore.predicateForEvents(withStart: startDate, end: endDate, calendars: calendars)
 			
 		self.events = eventStore.events(matching: eventsPredicate).sorted() { (event1: EKEvent, event2: EKEvent) -> Bool in
@@ -177,38 +238,6 @@ extension DetailedViewController {
 		collectionView.reloadData()
 	}
 	
-	func dateChecked() -> String {
-		
-		let currentTime = Date()
-		let dateFormatter = DateFormatter()
-		dateFormatter.dateFormat = "HH"
-		let now = dateFormatter.string(from: currentTime)
-
-		var tomorrow: Date {
-			return NSCalendar.current.date(byAdding: .day, value: 1, to: currentTime)!
-		}
-		
-		if Int(now)! >= 14 {
-			dateFormatter.dateFormat = "EEE, MMM dd"
-			let dayAfter = dateFormatter.string(from: tomorrow)
-			return dayAfter
-		} else {
-			dateFormatter.dateFormat = "EEE, MMM dd"
-			let currentDate = dateFormatter.string(from: currentTime)
-			return "\(currentDate)"
-		}
-	}
-	
-	func showCurrentDate() -> String {
-		
-		let currentDate = Date()
-		let dateFormatter = DateFormatter()
-		dateFormatter.dateFormat = "EEE, MMM dd"
-		let today = dateFormatter.string(from: currentDate)
-		self.date.text = today
-		
-		return self.date.text!
-	}
 
 	func showEventDate(startDate: Date) -> String {
 		
@@ -220,6 +249,68 @@ extension DetailedViewController {
 		}
 		return eventDate
 	}
+	
+	// get a formatted date value from parsed data
+	func extractDate(dateNumber: Date) -> String {
+		let today = Date()
+		let forecastDate: Date!
+		if today != dateNumber {
+			forecastDate = dateNumber.addingTimeInterval(-60*60*24)
+		} else {
+			forecastDate = dateNumber
+		}
+		let dateFormatter = DateFormatter()
+		dateFormatter.dateFormat = "EEE, MMM dd"
+		let date = dateFormatter.string(from: forecastDate)
+		return date
+		
+	}
 }
 
+// MARK: SearchViewController extension
 
+extension SearchViewController {
+	
+	func connectionWarning() {
+		
+		if Reachability.isInternetAvailable() == false {
+			print("reachability works - search")
+			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+				connectionWarningView.isHidden = true
+				print("fallthrough")
+			} else {
+				print("access alert")
+				connectionWarningView.isHidden = false
+			}
+		} else {
+			connectionWarningView.isHidden = true
+			
+		}
+		
+	}
+	
+	func searchControllerSetting() {
+		
+		searchController = UISearchController(searchResultsController: nil)
+		searchController.dimsBackgroundDuringPresentation = false
+		searchController.isActive = true
+		searchController.searchBar.delegate = self
+		searchController.searchBar.barTintColor = UIColor(red: 135/255, green: 206/255, blue: 250/255, alpha: 1.0)
+		searchController.searchBar.placeholder = "Search for places here"
+		searchController.searchBar.sizeToFit()
+		searchController.searchBar.searchBarStyle = .minimal
+		searchController.searchBar.isTranslucent = false
+		searchTableView.tableHeaderView = searchController.searchBar
+		definesPresentationContext = true
+	}
+	
+	func tableViewColor() {
+		
+		self.changeColor.viewColor(icon: #imageLiteral(resourceName: "02d"), view: searchTableView)
+		self.changeColor.viewGradient(view: searchTableView, start: 1.0, end: 0.1)
+		
+		self.changeColor.viewColor(icon: #imageLiteral(resourceName: "01d"), view: favTableView)
+		self.changeColor.viewGradient(view: favTableView, start: 0.1, end: 1.0)
+		
+	}
+}
