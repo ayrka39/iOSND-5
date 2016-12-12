@@ -11,7 +11,7 @@ import CoreLocation
 import CoreData
 
 
-class MainViewController: UIViewController {
+class MainViewController: UIViewController, CLLocationManagerDelegate {
 
 	@IBOutlet weak var date: UILabel!
 	@IBOutlet weak var place: UILabel!
@@ -25,82 +25,119 @@ class MainViewController: UIViewController {
 	@IBOutlet weak var currentWeatherView: UIView!
 	@IBOutlet weak var morningView: UIView!
 	@IBOutlet weak var afternoonView: UIView!
+	@IBOutlet weak var centerPopup: NSLayoutConstraint!
+	@IBOutlet weak var connectionWarningView: UIView!
+	@IBOutlet weak var currentDataSpinner: UIActivityIndicatorView!
+	@IBOutlet weak var morningDataSpinner: UIActivityIndicatorView!
+	@IBOutlet weak var afternoonDataSpinner: UIActivityIndicatorView!
 	
 	let locationManager = CLLocationManager()
 	var currentLocation: CLLocation?
-	let location = Location.shared
+	var fetchedCurrentData = [CurrentWeather]()
 	let openWeatherClient = OpenWeatherClient.shared
 	let changeColor = ChangeColor.shared
 	let coreDataStack = CoreDataStack.shared
 	
-	
+
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
 		showCurrentDate()
+		locationManager.delegate = self
+		locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
+		requestAccessToLocation()
+		locationManager.startMonitoringSignificantLocationChanges()
 		locationManagerSetting()
+		connectionWarningView.isHidden = true
 
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
 		super.viewWillAppear(animated)
-
+		deleteCurrentRecords()
 		getCurrentWeatherData()
 		getUpcomingData()
+		
+		
 	}
 	
-	override func viewDidAppear(_ animated: Bool) {
-		super.viewDidAppear(animated)
-		
-		locationAuthStatus()
-		
-	}
 
 	func getCurrentWeatherData() {
+		currentDataSpinner.startAnimating()
+		openWeatherClient.getCurrentWeatherData()
 		
-		openWeatherClient.getCurrentWeatherData() { (currentWeather, error) in
-			guard let currentWeather = currentWeather else {
-				return
-			}
-			DispatchQueue.main.async { 
-				self.place.text = currentWeather.city
-				self.currentTemperature.text = "\(currentWeather.temp!)"
-				self.currentWindSpeed.text = currentWeather.windSpeed
-				self.currentWeatherIcon.image = UIImage(named: currentWeather.icon!)
+		DispatchQueue.main.async {
+		
+			do {
+				self.fetchedCurrentData = try self.coreDataStack.context.fetch(CurrentWeather.fetch)
+				print("fetched no: \(self.fetchedCurrentData.count)")
+				let currentData = self.fetchedCurrentData[0] /* check an error - index out of range*/
+				
+				self.place.text = currentData.city
+				self.currentTemperature.text = "\(currentData.temp)"
+				self.currentWeatherIcon.image = UIImage(named: currentData.icon!)
+				self.currentWindSpeed.text = currentData.windSpeed
+				
 				self.changeColor.viewColor(icon: self.currentWeatherIcon.image!, view: self.currentWeatherView)
 				self.changeColor.viewGradient(view: self.currentWeatherView, start: 1.0, end: 0.1)
+				
+			} catch {
+				let error = error as Error
+				fatalError("no currentWeather data \(error)")
 			}
-			
 		}
-		
+		self.currentDataSpinner.stopAnimating()
+
 	}
 	
+
 	func getUpcomingData() {
-		openWeatherClient.getForecastData() { (forecast, error) in
-			guard let forecast = forecast else {
-				return
-			}
-			guard let sixthHour = forecast.index(where: {$0.hours == "06"}),
-					let ninthHour = forecast.index(where: {$0.hours == "09"}),
-					let twelfthHour = forecast.index(where: {$0.hours == "12"}),
-					let fifteenthHour = forecast.index(where: {$0.hours == "15"}) else {
-				return
-			}
+		upcomingDataSpinnerStart()
+		deleteForecastRecords()
+		openWeatherClient.getForecastData()
+		var fetchedUpcomingData = [Forecast]()
+		
+		DispatchQueue.main.async {
+		
+			let fetchRequest = Forecast.fetch
+			fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
 			
-			let sixTemp = forecast[sixthHour].minTemp!
-			let nineTemp = forecast[ninthHour].maxTemp!
-			let noonMinTemp = forecast[twelfthHour].minTemp!
-			let noonMaxTemp = forecast[twelfthHour].maxTemp!
-			let threeMinTemp = forecast[fifteenthHour].minTemp!
-			let threeMaxTemp = forecast[fifteenthHour].maxTemp!
-			let afternoonMinTemp = min(noonMinTemp, threeMinTemp)
-			let afternoonMaxTemp = max(noonMaxTemp, threeMaxTemp)
-			let nineIcon = forecast[ninthHour].icon!
-			let noonIcon = forecast[twelfthHour].icon!
-			var threeIcon = forecast[fifteenthHour].icon!
+			do {
+				fetchedUpcomingData = try self.coreDataStack.context.fetch(fetchRequest)
+				print("fetchedUpcomingData: \(fetchedUpcomingData.count)")
+				
+				guard let sixthHour = fetchedUpcomingData.index(where: {$0.hours == "06"}),
+					let ninthHour = fetchedUpcomingData.index(where: {$0.hours == "09"}),
+					let twelfthHour = fetchedUpcomingData.index(where: {$0.hours == "12"}),
+					let fifteenthHour = fetchedUpcomingData.index(where: {$0.hours == "15"}) else {
+						return
+				}
+				
+				var altered12 = 0
+				var altered15 = 0
 			
-			DispatchQueue.main.async {
+				if ninthHour > fifteenthHour && ninthHour < twelfthHour {
+					altered12 = twelfthHour
+					altered15 = twelfthHour + 1
+				} else if ninthHour > fifteenthHour && ninthHour > twelfthHour {
+					altered12 = twelfthHour + 8
+					altered15 = twelfthHour + 9
+				} else {
+					altered12 = twelfthHour
+					altered15 = fifteenthHour
+				}
+
+				let sixTemp = fetchedUpcomingData[sixthHour].minTemp
+				let nineTemp = fetchedUpcomingData[ninthHour].maxTemp
+				let noonMinTemp = fetchedUpcomingData[altered12].minTemp
+				let noonMaxTemp = fetchedUpcomingData[altered12].maxTemp
+				let threeMinTemp = fetchedUpcomingData[altered15].minTemp
+				let threeMaxTemp = fetchedUpcomingData[altered15].maxTemp
+				let afternoonMinTemp = min(noonMinTemp, threeMinTemp)
+				let afternoonMaxTemp = max(noonMaxTemp, threeMaxTemp)
+				let nineIcon = fetchedUpcomingData[ninthHour].icon!
+				let noonIcon = fetchedUpcomingData[twelfthHour].icon!
 				
 				if sixTemp == nineTemp {
 					self.morningTemperature.text = "\(sixTemp)°"
@@ -117,73 +154,25 @@ class MainViewController: UIViewController {
 				}
 				
 				self.morningIcon.image = UIImage(named: nineIcon)
-				switch nineIcon {
-				case "01n":
-					self.morningIcon.image = #imageLiteral(resourceName: "01d")
-				case "02n":
-					self.morningIcon.image = #imageLiteral(resourceName: "02d")
-				default:
-					break
-				}
 				self.afternoonIcon.image = UIImage(named: noonIcon)
-				switch noonIcon {
-				case "01n":
-					self.afternoonIcon.image = #imageLiteral(resourceName: "01d")
-				case "02n":
-					self.afternoonIcon.image = #imageLiteral(resourceName: "02d")
-				default:
-					break
-				}
 				
 				self.changeColor.viewColor(icon: self.morningIcon.image!, view: self.morningView)
 				self.changeColor.viewGradient(view: self.morningView, start: 0.1, end: 1.0)
 				
 				self.changeColor.viewColor(icon: self.afternoonIcon.image!, view: self.afternoonView)
 				self.changeColor.viewGradient(view: self.afternoonView, start: 0.1, end: 1.0)
+				
+				
+			} catch {
+				fatalError("no upcoming weather data")
 			}
-		}		
+		}
+		self.upcomingDataSpinnerStop()
 	}
 	
 }
 
-extension MainViewController: CLLocationManagerDelegate {
-	func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-		guard let llocation = locations.first else {
-			return
-		}
-		print("found: \(llocation.coordinate.latitude)")
-		let savedLocation = Locations(context: self.coreDataStack.context)
-		savedLocation.latitude = llocation.coordinate.latitude
-		savedLocation.longitude = llocation.coordinate.longitude
-		print("saved: \(savedLocation.latitude)")
-	}
-	
-	func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-		let status = CLLocationManager.authorizationStatus()
-		
-		switch status {
-		case .notDetermined:
-			requestAccessToLocation()
-		case .authorizedWhenInUse:
-			locationManager.stopUpdatingLocation()
-		case .denied:
-			print("alerted")
-			alertToLocationAccessDenied()
-		case .restricted:
-			if Reachability.isInternetAvailable() == false {
-				alertToLocationAccessRestricted()
-			}
-		default:
-			print("no access")
-		}
-	
-	}
-
-	func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-		print("failed to find user's location \(error.localizedDescription)")
-	}
-}
-
+// MARK: FetchRequest extension
 extension Locations {
 	
 	class var fetch: NSFetchRequest<Locations> {
@@ -191,3 +180,20 @@ extension Locations {
 	}
 	
 }
+
+extension CurrentWeather {
+	
+	class var fetch: NSFetchRequest<CurrentWeather> {
+		return NSFetchRequest<CurrentWeather>(entityName: "CurrentWeather")
+	}
+	
+}
+
+extension Forecast {
+	
+	class var fetch: NSFetchRequest<Forecast> {
+		return NSFetchRequest<Forecast>(entityName: "Forecast")
+	}
+	
+}
+

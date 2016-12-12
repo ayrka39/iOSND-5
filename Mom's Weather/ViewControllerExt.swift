@@ -9,7 +9,10 @@
 import Foundation
 import UIKit
 import EventKit
+import CoreData
 import CoreLocation
+
+// MARK: MainViewController extension
 
 extension MainViewController {
 	
@@ -21,7 +24,7 @@ extension MainViewController {
 			case .notDetermined:
 				requestAccessToLocation()
 			case .authorizedWhenInUse:
-				printText()
+				print("accessed")
 			case .denied:
 				print("alerted")
 				alertToLocationAccessDenied()
@@ -34,44 +37,76 @@ extension MainViewController {
 			}
 		}
 	
-	func printText() {
-		print("access successful")
-	}
-	
 	func locationManagerSetting() {
 		
-		locationManager.delegate = self
-		locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
-		locationManager.requestWhenInUseAuthorization()
-		
-		guard Reachability.isInternetAvailable() == false else {
-			if CLLocationManager.authorizationStatus() != .authorized {
-				print("popup screen")
+		if Reachability.isInternetAvailable() == false {
+			print("reachability works")
+			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+				connectionWarningView.isHidden = true
+				print("fallthrough")
 			} else {
-				print("use saved location")
-				fetchSavedLocation() // url is useless if internet is not available. Use saved weather data//
+				print("access alert")
+				centerPopup.constant = 0
+				currentWeatherView.isHidden = true
+				morningView.isHidden = true
+				afternoonView.isHidden = true
 			}
-			return
 		}
-	}
-	
-	func fetchSavedLocation() {
 		
-		do {
-			let savedLocation = try coreDataStack.context.fetch(Locations.fetch)
-			var temporaryLocation = locationManager.location?.coordinate
-			temporaryLocation?.latitude = (savedLocation.last?.latitude)!
-			temporaryLocation?.longitude = (savedLocation.last?.longitude)!
-			
-		} catch {
-			fatalError("no location info")
-		}
 	}
 	
 	func requestAccessToLocation() {
 		locationManager.requestWhenInUseAuthorization()
 	}
 
+	func deleteCurrentRecords() {
+		
+		if Reachability.isInternetAvailable() == true {
+			let object = fetchedCurrentData.first
+			guard object == nil else {
+				
+				openWeatherClient.getCurrentWeatherData()
+				return
+			}
+			let currentDataRequest = CurrentWeather.fetch
+			do {
+				let deleteRequest = NSBatchDeleteRequest(fetchRequest: currentDataRequest as! NSFetchRequest<NSFetchRequestResult>)
+				_ = try coreDataStack.context.execute(deleteRequest)
+				
+				coreDataStack.saveContext()
+			} catch {
+				fatalError("Failed removing saved records")
+			}
+			
+			
+		}
+	}
+	
+	func deleteForecastRecords() {
+		
+		if Reachability.isInternetAvailable() == true {
+			
+			let forecastDataRequest = Forecast.fetch
+			
+			do {
+				let deleteRequest = NSBatchDeleteRequest(fetchRequest: forecastDataRequest as! NSFetchRequest<NSFetchRequestResult>)
+				_ = try CoreDataStack.shared.context.execute(deleteRequest)
+				
+			} catch {
+				fatalError("Failed removing saved records")
+			}
+		}
+	}
+	
+	func upcomingDataSpinnerStart() {
+		morningDataSpinner.startAnimating()
+		afternoonDataSpinner.startAnimating()
+	}
+	
+	func upcomingDataSpinnerStop() {
+		morningDataSpinner.stopAnimating()
+		afternoonDataSpinner.stopAnimating()
+	}
 	
 	func showCurrentDate() -> String {
 		
@@ -82,6 +117,16 @@ extension MainViewController {
 		self.date.text = today
 		
 		return self.date.text!
+	}
+	
+	// get a formatted date value from parsed data
+	func extractDate(dateNumber: Double) -> String {
+		let convertedDate = Date(timeIntervalSince1970: dateNumber)
+		let dateFormatter = DateFormatter()
+		dateFormatter.dateFormat = "EEE, MMM dd"
+		let date = dateFormatter.string(from: convertedDate)
+		return date
+		
 	}
 	
 	func alertToLocationAccessDenied() {
@@ -113,7 +158,28 @@ extension MainViewController {
 
 }
 
+// MARK: DetailedViewController extension
+
 extension DetailedViewController {
+	
+	
+	func connectionWarning() {
+		
+		if Reachability.isInternetAvailable() == false {
+			print("reachability works - detail")
+			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+				connectionWarningView.isHidden = true
+				print("fallthrough")
+			} else {
+				print("access alert")
+				connectionWarningView.isHidden = false
+			}
+		} else {
+			connectionWarningView.isHidden = true
+			calendarAuthStatus()
+		}
+
+	}
 	
 	
 	func calendarAuthStatus() {
@@ -153,7 +219,7 @@ extension DetailedViewController {
 	func loadEvents() {
 
 		let startDate = Date()
-		let endDate = Date(timeIntervalSinceNow: 60*60*24)
+		let endDate = Date(timeIntervalSinceNow: 60*60*24*30)
 		let eventsPredicate = eventStore.predicateForEvents(withStart: startDate, end: endDate, calendars: calendars)
 			
 		self.events = eventStore.events(matching: eventsPredicate).sorted() { (event1: EKEvent, event2: EKEvent) -> Bool in
@@ -172,28 +238,6 @@ extension DetailedViewController {
 		collectionView.reloadData()
 	}
 	
-	func dateChecked() -> String {
-		
-		let currentTime = Date()
-		let dateFormatter = DateFormatter()
-		dateFormatter.dateFormat = "HH"
-		let now = dateFormatter.string(from: currentTime)
-
-		var tomorrow: Date {
-			return NSCalendar.current.date(byAdding: .day, value: 1, to: currentTime)!
-		}
-		
-		if Int(now)! >= 14 {
-			dateFormatter.dateFormat = "EEE, MMM dd"
-			let dayAfter = dateFormatter.string(from: tomorrow)
-			return dayAfter
-		} else {
-			dateFormatter.dateFormat = "EEE, MMM dd"
-			let currentDate = dateFormatter.string(from: currentTime)
-			return "\(currentDate)"
-		}
-	}
-	
 
 	func showEventDate(startDate: Date) -> String {
 		
@@ -205,6 +249,68 @@ extension DetailedViewController {
 		}
 		return eventDate
 	}
+	
+	// get a formatted date value from parsed data
+	func extractDate(dateNumber: Date) -> String {
+		let today = Date()
+		let forecastDate: Date!
+		if today != dateNumber {
+			forecastDate = dateNumber.addingTimeInterval(-60*60*24)
+		} else {
+			forecastDate = dateNumber
+		}
+		let dateFormatter = DateFormatter()
+		dateFormatter.dateFormat = "EEE, MMM dd"
+		let date = dateFormatter.string(from: forecastDate)
+		return date
+		
+	}
 }
 
+// MARK: SearchViewController extension
 
+extension SearchViewController {
+	
+	func connectionWarning() {
+		
+		if Reachability.isInternetAvailable() == false {
+			print("reachability works - search")
+			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+				connectionWarningView.isHidden = true
+				print("fallthrough")
+			} else {
+				print("access alert")
+				connectionWarningView.isHidden = false
+			}
+		} else {
+			connectionWarningView.isHidden = true
+			
+		}
+		
+	}
+	
+	func searchControllerSetting() {
+		
+		searchController = UISearchController(searchResultsController: nil)
+		searchController.dimsBackgroundDuringPresentation = false
+		searchController.isActive = true
+		searchController.searchBar.delegate = self
+		searchController.searchBar.barTintColor = UIColor(red: 135/255, green: 206/255, blue: 250/255, alpha: 1.0)
+		searchController.searchBar.placeholder = "Search for places here"
+		searchController.searchBar.sizeToFit()
+		searchController.searchBar.searchBarStyle = .minimal
+		searchController.searchBar.isTranslucent = false
+		searchTableView.tableHeaderView = searchController.searchBar
+		definesPresentationContext = true
+	}
+	
+	func tableViewColor() {
+		
+		self.changeColor.viewColor(icon: #imageLiteral(resourceName: "02d"), view: searchTableView)
+		self.changeColor.viewGradient(view: searchTableView, start: 1.0, end: 0.1)
+		
+		self.changeColor.viewColor(icon: #imageLiteral(resourceName: "01d"), view: favTableView)
+		self.changeColor.viewGradient(view: favTableView, start: 0.1, end: 1.0)
+		
+	}
+}

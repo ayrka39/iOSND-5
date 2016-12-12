@@ -10,15 +10,13 @@ import UIKit
 
 class SearchCell: UITableViewCell {
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
+	@IBOutlet weak var placeLabel: UILabel!
+	@IBOutlet weak var favoriteButton: UIButton!
+	
+	var tapAction: ((SearchCell) -> Void)?
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
-    }
-
+	@IBAction func favoriteClicked(_ sender: Any) {
+		tapAction?(self)
+	}
+	
 }

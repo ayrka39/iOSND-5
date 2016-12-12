@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 import CoreLocation
 
 class OpenWeatherClient {
@@ -16,17 +17,17 @@ class OpenWeatherClient {
 	let keys = OpenWeatherParmeterKeys.self
 	let values = OpenWeatherParameterValues.self
 	let responseKeys = OpenWeatherResponseKeys.self
-	let location = Location.shared
-	var currentWeatherData: CurrentWeather?
+	var currentData: CurrentWeather?
 	var forecastData: [Forecast]?
-	
+	var location: [Locations]?
 	
 	// Mark: Get necessary data
 	
 		
-	func getForecastData(_ completionForForecast: @escaping (_ forecastData: [Forecast]?, _ error: NSError?) -> Void) {
+	func getForecastData() {
+
+		forecastData = [Forecast(context: CoreDataStack.shared.context)]
 		
-		forecastData = [Forecast]()
 		taskForGetMethod(kind: "forecast") { (results, error) in
 			
 			guard error == nil else {
@@ -35,45 +36,53 @@ class OpenWeatherClient {
 			
 			guard let cityDict = results?["city"] as? Dict,
 				let listArr = results?["list"] as? [Dict] else {
-					return
+				return
 			}
-			let place = cityDict["name"] as AnyObject
+			
+			let place = (cityDict["name"] as AnyObject) as! String
+			
 			for listDict in listArr  {
-				guard let mainDict = listDict["main"] as? Dict,
+				guard let dateDle = listDict["dt"] as? Double,
+					let mainDict = listDict["main"] as? Dict,
 					let weatherArr = listDict["weather"] as? [Dict],
-					let dateDbl = listDict["dt"] as? Double,
 					let timeStr = listDict["dt_txt"] as? String else {
 						return
 				}
-				let hours = self.extractHours(timeText: timeStr)
-				let date = self.extractDate(dateNumber: dateDbl)
+				
+				let date = (Date(timeIntervalSince1970: dateDle)) as NSDate
 				let min_Temp = mainDict["temp_min"] as AnyObject
 				let max_Temp = mainDict["temp_max"] as AnyObject
 				let minTemp = self.convertKtoC(kelvin: min_Temp as! Double)
 				let maxTemp = self.convertKtoC(kelvin: max_Temp as! Double)
-				let icon = weatherArr[0]["icon"] as AnyObject
+				let icon = weatherArr[0]["icon"] as! String
+				let hours = self.extractHours(timeText: timeStr)
 				
-				let forecast = Forecast(city: "\(place)", hours: "\(hours)", minTemp: minTemp, maxTemp: maxTemp, icon: "\(icon)", date: "\(date)")
-				self.forecastData?.append(forecast)
+				let forecast = Forecast(context: CoreDataStack.shared.context)
+				forecast.city = place
+				forecast.date = date
+				forecast.minTemp = Int16(minTemp)
+				forecast.maxTemp = Int16(maxTemp)
+				forecast.icon = icon 
+				forecast.hours = hours
+				self.forecastData!.append(forecast)
+				
 			}
-			DispatchQueue.main.async {
-				completionForForecast(self.forecastData, nil)
-			}
+//			DispatchQueue.main.async {
+				CoreDataStack.shared.saveContext()
+//			}
 		}
-	
 	}
 	
-	func getCurrentWeatherData(_ completionForCurrentWeather: @escaping (_ currentData: CurrentWeather?, _ error: NSError?) -> Void) {
-		
+	func getCurrentWeatherData() {
 		
 		taskForGetMethod(kind: "current") { (results, error) in
-			
+	
 			guard error == nil else {
 				return
 			}
 			guard let weatherArr = results?[self.responseKeys.weather] as? [Dict],
-					let mainDict = results?[self.responseKeys.dataMain] as? Dict,
-					let windDict = results?[self.responseKeys.wind] as? Dict else {
+				let mainDict = results?[self.responseKeys.dataMain] as? Dict,
+				let windDict = results?[self.responseKeys.wind] as? Dict else {
 				return
 			}
 			let place = (results?[self.responseKeys.cityName] as AnyObject) as! String
@@ -83,18 +92,21 @@ class OpenWeatherClient {
 			let windSpeed = String(format: "%.0f", _windSpeed as! Double)
 			let icon = (weatherArr[0][self.responseKeys.weatherIcon] as AnyObject) as! String
 			
-			let currentWeather = CurrentWeather(city: "\(place)", temp: temp, windSpeed: "\(windSpeed)", icon: "\(icon)")
+			self.currentData = CurrentWeather(context: CoreDataStack.shared.context)
+			self.currentData?.city = place
+			self.currentData?.temp = Int16(temp)
+			self.currentData?.windSpeed = windSpeed
+			self.currentData?.icon = icon
 			
-			self.currentWeatherData = currentWeather
 			DispatchQueue.main.async {
-				completionForCurrentWeather(self.currentWeatherData, nil)
-				
+				CoreDataStack.shared.saveContext()
 			}
-		}
 
+		}
+		
 	}
 	
-			
+	
 	// Mark: Task for GET Method
 	func taskForGetMethod(kind: String, completionHandlerForGet: @escaping (_ results: AnyObject?, _ error : NSError?) -> Void) {
 		
@@ -115,7 +127,9 @@ class OpenWeatherClient {
 				return
 			}
 			self.parseData(data, completionHandlerForParseData: completionHandlerForGet)
+			
 		}
+		
 		task.resume()
 	}
 	
@@ -129,20 +143,40 @@ class OpenWeatherClient {
 		} catch {
 			fatalError("could not parse the data")
 		}
+		
 		completionHandlerForParseData(jsonResult, nil)
 	}
 	
 	// Mark: Get OpenWeather URL from parameters
 	fileprivate func getOpenWeatherURL(kind: String) -> URL {
+		var parameters: Dict
+		// From user location
+		print("saved? \(location?.first?.latitude)")
+		if location?.first?.latitude == nil {
+			let currentLocation = CLLocationManager().location?.coordinate
+			parameters = [
+				keys.latitude: currentLocation?.latitude as AnyObject,
+				keys.longitude: currentLocation?.longitude as AnyObject,
+				keys.APIKey: values.APIKey as AnyObject
+			]
+			print("current: \(currentLocation?.latitude)")
 		
-		let currentLocation = CLLocationManager().location
-					
-		let parameters: Dict = [
-			keys.latitude: currentLocation!.coordinate.latitude as AnyObject,
-			keys.longitude: currentLocation!.coordinate.longitude as AnyObject,
-			keys.APIKey: values.APIKey as AnyObject
-		]
-		
+			// From selected or saved location
+		} else {
+			do {
+				location = try CoreDataStack.shared.context.fetch(Locations.fetch)
+				let latitude = location?.first?.latitude
+				let longitude = location?.first?.longitude
+				parameters = [
+					keys.latitude: latitude as AnyObject,
+					keys.longitude: longitude as AnyObject,
+					keys.APIKey: values.APIKey as AnyObject
+				]
+				print("lat: \(latitude), lon: \(longitude)")
+			} catch {
+				fatalError("no info")
+			}
+		}
 		var components = URLComponents()
 		components.scheme = OpenWeatherBase.APIScheme
 		components.host = OpenWeatherBase.APIHost
@@ -160,10 +194,10 @@ class OpenWeatherClient {
 			let queryItem = URLQueryItem(name: key, value: "\(value)")
 			components.queryItems!.append(queryItem)
 		}
-
+//		print("url \(components.url!)")
 		return components.url!
+		
 	}
-	
 	// Mark: Convert Kevin value to Celcius
 	func convertKtoC(kelvin: Double) -> Int {
 		
@@ -186,15 +220,6 @@ class OpenWeatherClient {
 		
 		return hour
 	}
-	
-	// get a formatted date value from parsed data
-	func extractDate(dateNumber: Double) -> String {
-		let convertedDate = Date(timeIntervalSince1970: dateNumber)
-		let dateFormatter = DateFormatter()
-		dateFormatter.dateFormat = "EEE, MMM dd"
-		let date = dateFormatter.string(from: convertedDate)
-		return date
-		
-	}
+
 }
 
