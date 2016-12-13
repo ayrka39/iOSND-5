@@ -97,6 +97,7 @@ class OpenWeatherClient {
 			self.currentData?.temp = Int16(temp)
 			self.currentData?.windSpeed = windSpeed
 			self.currentData?.icon = icon
+			self.currentData?.hour = Date() as NSDate?
 			
 			DispatchQueue.main.async {
 				CoreDataStack.shared.saveContext()
@@ -152,12 +153,13 @@ class OpenWeatherClient {
 		var parameters: Dict
 		// From user location
 		do {
+			print("checkpoint 1")
 			location = try CoreDataStack.shared.context.fetch(Locations.fetch)
-			
-			print("saved? \(location?.last?.latitude)")
 		} catch {
 			fatalError("no info")
 		}
+		print("saved? \(location?.last?.latitude)")
+		
 		if location?.last?.latitude == nil {
 			
 			let currentLocation = CLLocationManager().location?.coordinate
@@ -177,8 +179,8 @@ class OpenWeatherClient {
 				keys.longitude: longitude as AnyObject,
 				keys.APIKey: values.APIKey as AnyObject
 			]
-
 		}
+		
 		var components = URLComponents()
 		components.scheme = OpenWeatherBase.APIScheme
 		components.host = OpenWeatherBase.APIHost
@@ -224,4 +226,3 @@ class OpenWeatherClient {
 	}
 
 }
-

@@ -30,6 +30,7 @@ class MainViewController: UIViewController {
 	@IBOutlet weak var currentDataSpinner: UIActivityIndicatorView!
 	@IBOutlet weak var morningDataSpinner: UIActivityIndicatorView!
 	@IBOutlet weak var afternoonDataSpinner: UIActivityIndicatorView!
+	@IBOutlet weak var offlineLabel: UILabel!
 	
 	let locationManager = CLLocationManager()
 	var currentLocation: CLLocation?
@@ -45,10 +46,8 @@ class MainViewController: UIViewController {
 		super.viewDidLoad()
 		
 		showCurrentDate()
-		locationManager.delegate = self
-		locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
-		requestAccessToLocation()
 		locationManagerSetting()
+		requestAccessToLocation()
 
 	}
 	
@@ -59,7 +58,7 @@ class MainViewController: UIViewController {
 		deleteCurrentRecords()
 		getCurrentWeatherData()
 		getUpcomingData()
-		
+		offlineWarning()
 		
 	}
 	
@@ -88,13 +87,37 @@ class MainViewController: UIViewController {
 		}
 		
 	}
+	
+	func getCurrentData() {
+		currentDataSpinner.startAnimating()
+		print("checkpoint 4")
+		openWeatherClient.getCurrentWeatherData()
+		
+			guard let currentData = self.fetchedCurrentData.last else {
+				return /* check an error - index out of range*/
+			}
+			self.place.text = currentData.city
+			self.currentTemperature.text = "\(currentData.temp)"
+			self.currentWeatherIcon.image = UIImage(named: currentData.icon!)
+			self.currentWindSpeed.text = currentData.windSpeed
+			
+			self.changeColor.viewColor(icon: self.currentWeatherIcon.image!, view: self.currentWeatherView)
+			self.changeColor.viewGradient(view: self.currentWeatherView, start: 1.0, end: 0.1)
+			
+		
+		self.currentDataSpinner.stopAnimating()
+		
+		}
 
+	
 
 	func getCurrentWeatherData() {
 		currentDataSpinner.startAnimating()
+		print("checkpoint 3")
 		openWeatherClient.getCurrentWeatherData()
 		
 		DispatchQueue.main.async {
+		
 			print("fetched no: \(self.fetchedCurrentData.count)")
 			guard let currentData = self.fetchedCurrentData.last else {
 				return /* check an error - index out of range*/
@@ -183,7 +206,7 @@ class MainViewController: UIViewController {
 		morningDataSpinner.stopAnimating()
 		afternoonDataSpinner.stopAnimating()
 	}
-	
+
 }
 
 
@@ -195,7 +218,7 @@ extension MainViewController: CLLocationManagerDelegate {
 		}
 		
 		currentLocation = location
-		
+		print("checkpoint 2")
 		let savedLocation = Locations(context: coreDataStack.context)
 		savedLocation.latitude = (currentLocation?.coordinate.latitude)!
 		savedLocation.longitude = (currentLocation?.coordinate.longitude)!

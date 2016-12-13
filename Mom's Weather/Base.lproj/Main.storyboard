@@ -248,6 +248,28 @@
                                     <constraint firstItem="kMu-nJ-4xj" firstAttribute="leading" secondItem="Sgk-Oq-zYM" secondAttribute="leadingMargin" constant="15" id="mhc-hU-0WH"/>
                                 </constraints>
                             </view>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fWw-1S-hFc">
+                                <rect key="frame" x="125" y="502" width="188" height="15"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="15" id="pzn-di-DbL"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M1X-E7-rx9">
+                                <rect key="frame" x="-252" y="223" width="224" height="121"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="121" id="JDA-Yb-Id7"/>
+                                    <constraint firstAttribute="width" constant="224" id="VYq-Jg-WSQ"/>
+                                </constraints>
+                                <string key="text">Internet connection appears to be offline. 
+
+Please check if Internet connection is available.</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="nn8-mu-2Zl">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <subviews>
@@ -263,19 +285,6 @@
                                     <constraint firstItem="8db-kX-MSV" firstAttribute="leading" secondItem="nn8-mu-2Zl" secondAttribute="leading" id="vja-rD-Rsg"/>
                                 </constraints>
                             </view>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M1X-E7-rx9">
-                                <rect key="frame" x="-252" y="223" width="224" height="121"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="121" id="JDA-Yb-Id7"/>
-                                    <constraint firstAttribute="width" constant="224" id="VYq-Jg-WSQ"/>
-                                </constraints>
-                                <string key="text">Internet connection appears to be offline. 
-
-Please check if Internet connection is available.</string>
-                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -284,10 +293,12 @@ Please check if Internet connection is available.</string>
                             <constraint firstItem="2ed-iU-9Q3" firstAttribute="firstBaseline" secondItem="flX-QC-Ide" secondAttribute="firstBaseline" id="7Xe-Y9-Acb"/>
                             <constraint firstItem="2ed-iU-9Q3" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" symbolic="YES" id="8BA-0Q-Aqe"/>
                             <constraint firstItem="Sgk-Oq-zYM" firstAttribute="height" secondItem="Ome-d2-unv" secondAttribute="height" id="ASR-wt-ZU5"/>
+                            <constraint firstAttribute="trailing" secondItem="fWw-1S-hFc" secondAttribute="trailing" constant="7" id="BKV-Q9-rOX"/>
                             <constraint firstItem="57F-eV-35H" firstAttribute="centerX" secondItem="Sgk-Oq-zYM" secondAttribute="centerX" constant="-5" id="CYj-91-jeX"/>
                             <constraint firstItem="Sgk-Oq-zYM" firstAttribute="width" secondItem="Ome-d2-unv" secondAttribute="width" id="Edh-N5-sQH"/>
                             <constraint firstItem="Ome-d2-unv" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="GcN-pj-yDN"/>
                             <constraint firstItem="i9Q-vw-Z4u" firstAttribute="top" secondItem="2ed-iU-9Q3" secondAttribute="bottom" constant="8" symbolic="YES" id="IpQ-QO-Aak"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="fWw-1S-hFc" secondAttribute="bottom" constant="2" id="Rvc-uo-QMo"/>
                             <constraint firstItem="Sgk-Oq-zYM" firstAttribute="leading" secondItem="Ome-d2-unv" secondAttribute="trailing" id="SlB-RT-4AR"/>
                             <constraint firstItem="2ed-iU-9Q3" firstAttribute="baseline" secondItem="flX-QC-Ide" secondAttribute="baseline" id="TWT-V7-zPc"/>
                             <constraint firstItem="i9Q-vw-Z4u" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="ZZv-Ai-495"/>
@@ -305,6 +316,7 @@ Please check if Internet connection is available.</string>
                             <constraint firstItem="Ome-d2-unv" firstAttribute="top" secondItem="i9Q-vw-Z4u" secondAttribute="bottom" constant="53" id="qw1-RA-aya"/>
                             <constraint firstItem="ggM-Tp-Jl0" firstAttribute="centerX" secondItem="Ome-d2-unv" secondAttribute="centerX" constant="4" id="r9D-2c-zOh"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="Ome-d2-unv" secondAttribute="bottom" id="vL3-1c-loz"/>
+                            <constraint firstItem="fWw-1S-hFc" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="125" id="yRz-9c-2yQ"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" systemItem="recents" id="hlP-sV-Box"/>
@@ -325,6 +337,7 @@ Please check if Internet connection is available.</string>
                         <outlet property="morningIcon" destination="1MR-28-Kkz" id="JUw-1d-FqE"/>
                         <outlet property="morningTemperature" destination="cfV-Jz-x7i" id="bH2-LR-gwu"/>
                         <outlet property="morningView" destination="Ome-d2-unv" id="C79-eG-dJK"/>
+                        <outlet property="offlineLabel" destination="fWw-1S-hFc" id="Rpu-Ij-9xO"/>
                         <outlet property="place" destination="flX-QC-Ide" id="2QS-st-Ed9"/>
                     </connections>
                 </viewController>
@@ -525,7 +538,7 @@ Please check if Internet connection is available.</string>
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" reuseIdentifier="weatherCell" id="PHJ-pU-ZHt" customClass="WeatherCell" customModule="Mom_s_Weather" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="-1" width="50" height="130"/>
+                                        <rect key="frame" x="0.0" y="-0.5" width="50" height="130"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                             <rect key="frame" x="0.0" y="0.0" width="50" height="130"/>
@@ -670,41 +683,9 @@ Please check if Internet connection is available.</string>
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZoB-bd-OP7">
-                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                                <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="launchScreenimage" translatesAutoresizingMaskIntoConstraints="NO" id="BZo-uE-zSU">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
-                                    </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I8m-E6-vVv">
-                                        <rect key="frame" x="61" y="223" width="198" height="121"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="121" id="1ZX-Hv-AO0"/>
-                                        </constraints>
-                                        <string key="text">Internet connection 
-appears to be offline. 
-
-Please check if Internet connection is available.</string>
-                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstItem="BZo-uE-zSU" firstAttribute="leading" secondItem="ZoB-bd-OP7" secondAttribute="leading" id="4wr-c6-cW6"/>
-                                    <constraint firstItem="I8m-E6-vVv" firstAttribute="centerY" secondItem="ZoB-bd-OP7" secondAttribute="centerY" id="Aqm-i1-RPF"/>
-                                    <constraint firstAttribute="trailing" secondItem="BZo-uE-zSU" secondAttribute="trailing" id="HoV-eg-wuF"/>
-                                    <constraint firstItem="I8m-E6-vVv" firstAttribute="leading" secondItem="ZoB-bd-OP7" secondAttribute="leading" constant="61" id="I9d-tb-Rgy"/>
-                                    <constraint firstItem="I8m-E6-vVv" firstAttribute="centerX" secondItem="ZoB-bd-OP7" secondAttribute="centerX" id="Mtc-UT-nS1"/>
-                                    <constraint firstAttribute="trailing" secondItem="I8m-E6-vVv" secondAttribute="trailing" constant="61" id="VhD-jo-qbd"/>
-                                    <constraint firstItem="BZo-uE-zSU" firstAttribute="top" secondItem="ZoB-bd-OP7" secondAttribute="top" id="hxF-Wr-aco"/>
-                                    <constraint firstAttribute="bottom" secondItem="BZo-uE-zSU" secondAttribute="bottom" id="y4W-i1-mls"/>
-                                </constraints>
-                            </view>
                             <tableView clipsSubviews="YES" tag="1" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="8ZL-Qx-QyV">
                                 <rect key="frame" x="0.0" y="20" width="320" height="212"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="8ZL-Qx-QyV" secondAttribute="height" multiplier="320:251" constant="49.721115537848618" id="UFg-N7-ayO"/>
                                 </constraints>
@@ -746,6 +727,7 @@ Please check if Internet connection is available.</string>
                                                 <constraint firstAttribute="bottom" secondItem="3mJ-Ek-GA3" secondAttribute="bottom" constant="7" id="zwG-0y-oI0"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         <connections>
                                             <outlet property="favoriteButton" destination="3mJ-Ek-GA3" id="uFP-YF-2AZ"/>
                                             <outlet property="placeLabel" destination="uuD-At-H2H" id="zkV-bh-v6U"/>
@@ -815,6 +797,38 @@ Please check if Internet connection is available.</string>
                                     <outlet property="delegate" destination="BdT-Wi-sq8" id="7ws-Pv-t7b"/>
                                 </connections>
                             </tableView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZoB-bd-OP7">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="launchScreenimage" translatesAutoresizingMaskIntoConstraints="NO" id="BZo-uE-zSU">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="I8m-E6-vVv">
+                                        <rect key="frame" x="61" y="223" width="198" height="121"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="121" id="1ZX-Hv-AO0"/>
+                                        </constraints>
+                                        <string key="text">Internet connection 
+appears to be offline. 
+
+Please check if Internet connection is available.</string>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="BZo-uE-zSU" firstAttribute="leading" secondItem="ZoB-bd-OP7" secondAttribute="leading" id="4wr-c6-cW6"/>
+                                    <constraint firstItem="I8m-E6-vVv" firstAttribute="centerY" secondItem="ZoB-bd-OP7" secondAttribute="centerY" id="Aqm-i1-RPF"/>
+                                    <constraint firstAttribute="trailing" secondItem="BZo-uE-zSU" secondAttribute="trailing" id="HoV-eg-wuF"/>
+                                    <constraint firstItem="I8m-E6-vVv" firstAttribute="leading" secondItem="ZoB-bd-OP7" secondAttribute="leading" constant="61" id="I9d-tb-Rgy"/>
+                                    <constraint firstItem="I8m-E6-vVv" firstAttribute="centerX" secondItem="ZoB-bd-OP7" secondAttribute="centerX" id="Mtc-UT-nS1"/>
+                                    <constraint firstAttribute="trailing" secondItem="I8m-E6-vVv" secondAttribute="trailing" constant="61" id="VhD-jo-qbd"/>
+                                    <constraint firstItem="BZo-uE-zSU" firstAttribute="top" secondItem="ZoB-bd-OP7" secondAttribute="top" id="hxF-Wr-aco"/>
+                                    <constraint firstAttribute="bottom" secondItem="BZo-uE-zSU" secondAttribute="bottom" id="y4W-i1-mls"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>

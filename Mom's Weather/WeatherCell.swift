@@ -29,6 +29,7 @@ class WeatherCell: UICollectionViewCell {
 		iconImageView.image = UIImage(named: icon)
 		tempLabel.text = "\(hourly.minTemp)°"
 		
+		
 	}
 	
 	func dayOfWeek(date: NSDate) -> String {

@@ -211,8 +211,8 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 			location.longitude = (placemark.location?.coordinate.longitude)!
 			print("location: \(location.latitude), \(location.longitude)")
 			self.searchSpinner.stopAnimating()
+			
 			DispatchQueue.main.async {
-				
 				self.coreDataStack.saveContext()
 				let destination = self.storyboard?.instantiateViewController(withIdentifier: "tabBarController") as! UITabBarController
 				self.present(destination, animated: true, completion: nil)

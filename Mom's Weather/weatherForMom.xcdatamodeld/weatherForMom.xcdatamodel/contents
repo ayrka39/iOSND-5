@@ -2,6 +2,7 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="11542" systemVersion="16B2657" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CurrentWeather" representedClassName="CurrentWeather" syncable="YES" codeGenerationType="class">
         <attribute name="city" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="hour" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="icon" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="temp" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="windSpeed" optional="YES" attributeType="String" syncable="YES"/>
@@ -22,9 +23,9 @@
         <attribute name="longitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
     </entity>
     <elements>
-        <element name="CurrentWeather" positionX="-297" positionY="33" width="128" height="103"/>
+        <element name="CurrentWeather" positionX="-297" positionY="33" width="128" height="120"/>
+        <element name="Favorite" positionX="-92" positionY="-18" width="128" height="58"/>
         <element name="Forecast" positionX="-342" positionY="-180" width="128" height="133"/>
         <element name="Locations" positionX="-146" positionY="-180" width="128" height="75"/>
-        <element name="Favorite" positionX="-92" positionY="-18" width="128" height="58"/>
     </elements>
 </model>

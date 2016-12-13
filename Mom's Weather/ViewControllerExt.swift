@@ -51,6 +51,9 @@ extension MainViewController {
 				morningView.isHidden = true
 				afternoonView.isHidden = true
 			}
+		} else {
+			locationManager.delegate = self
+			locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
 		}
 		
 	}
@@ -99,15 +102,6 @@ extension MainViewController {
 		}
 	}
 	
-	func upcomingDataSpinnerStart() {
-		morningDataSpinner.startAnimating()
-		afternoonDataSpinner.startAnimating()
-	}
-	
-	func upcomingDataSpinnerStop() {
-		morningDataSpinner.stopAnimating()
-		afternoonDataSpinner.stopAnimating()
-	}
 	
 	func showCurrentDate() -> String {
 		
@@ -121,11 +115,11 @@ extension MainViewController {
 	}
 	
 	// get a formatted date value from parsed data
-	func extractDate(dateNumber: Double) -> String {
-		let convertedDate = Date(timeIntervalSince1970: dateNumber)
+	func extractDate(dateNumber: NSDate) -> String {
+//		let convertedDate = Date(timeIntervalSince1970: dateNumber)
 		let dateFormatter = DateFormatter()
-		dateFormatter.dateFormat = "EEE, MMM dd"
-		let date = dateFormatter.string(from: convertedDate)
+		dateFormatter.dateFormat = "MMM dd HH:mm"
+		let date = dateFormatter.string(from: dateNumber as Date)
 		return date
 		
 	}
@@ -155,6 +149,15 @@ extension MainViewController {
 		alert.addAction(OkAction)
 		alert.addAction(cancelAction)
 		present(alert, animated: true, completion: nil)
+	}
+	
+	func offlineWarning() {
+		if Reachability.isInternetAvailable() == false {
+			offlineLabel.isHidden = false
+			offlineLabel.text = "Offline. Last Update: \(extractDate(dateNumber: (fetchedCurrentData.last?.hour)!)) "
+		} else {
+			offlineLabel.isHidden = true
+		}
 	}
 
 }
@@ -275,6 +278,15 @@ extension DetailedViewController {
 		let date = dateFormatter.string(from: forecastDate)
 		return date
 		
+	}
+	
+	// get an icon for view color in case of offline
+	func weatherIconForViewColor(forecastIndex: Int) -> String {
+		if Reachability.isInternetAvailable() == true {
+			return (self.forecasts?[forecastIndex].icon)!
+		} else {
+			return "0\(forecastIndex)d"
+		}
 	}
 }
 
