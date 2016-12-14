@@ -5,11 +5,11 @@ Udacity project - You decide!
 Mom's Weather
 -------------
 
-Mom's Weather is an iOS app developed as a Udacity course project.
+Mom's Weather is an iOS app developed as [a Udacity course](https://www.udacity.com/course/ios-developer-nanodegree--nd003) project.
 
 ### Notice ###
 
-You needs Xcode 8.1 and above for this app.
+You need Xcode 8.1 and above for this app.
 
 ### Usage ###
 
