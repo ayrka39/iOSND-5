@@ -20,6 +20,8 @@ class OpenWeatherClient {
 	var currentData: CurrentWeather?
 	var forecastData: [Forecast]?
 	var location: [Locations]?
+	var currentWeatherData: CurrentWeatherData?
+	var forecastWeatherData: [ForecastWeatherData]?
 	
 	// Mark: Get necessary data
 	
@@ -67,46 +69,122 @@ class OpenWeatherClient {
 				self.forecastData!.append(forecast)
 				
 			}
-//			DispatchQueue.main.async {
-				CoreDataStack.shared.saveContext()
-//			}
-		}
-	}
-	
-	func getCurrentWeatherData() {
-		
-		taskForGetMethod(kind: "current") { (results, error) in
-	
-			guard error == nil else {
-				return
-			}
-			guard let weatherArr = results?[self.responseKeys.weather] as? [Dict],
-				let mainDict = results?[self.responseKeys.dataMain] as? Dict,
-				let windDict = results?[self.responseKeys.wind] as? Dict else {
-				return
-			}
-			let place = (results?[self.responseKeys.cityName] as AnyObject) as! String
-			let _temp = mainDict[self.responseKeys.temperature] as AnyObject
-			let temp = self.convertKtoC(kelvin: _temp as! Double)
-			let _windSpeed = windDict[self.responseKeys.windSpeed] as AnyObject
-			let windSpeed = String(format: "%.0f", _windSpeed as! Double)
-			let icon = (weatherArr[0][self.responseKeys.weatherIcon] as AnyObject) as! String
-			
-			self.currentData = CurrentWeather(context: CoreDataStack.shared.context)
-			self.currentData?.city = place
-			self.currentData?.temp = Int16(temp)
-			self.currentData?.windSpeed = windSpeed
-			self.currentData?.icon = icon
-			self.currentData?.hour = Date() as NSDate?
-			
 			DispatchQueue.main.async {
 				CoreDataStack.shared.saveContext()
 			}
-
+		}
+	}
+	
+	func getCurrentData() {
+		print("getWeather?")
+		
+		taskForGetMethod(kind: "current") { (results, error) in
+			
+				guard error == nil else {
+					return
+				}
+				guard let weatherArr = results?[self.responseKeys.weather] as? [Dict],
+					let mainDict = results?[self.responseKeys.dataMain] as? Dict,
+					let windDict = results?[self.responseKeys.wind] as? Dict else {
+						return
+				}
+				let place = (results?[self.responseKeys.cityName] as AnyObject) as! String
+				let _temp = mainDict[self.responseKeys.temperature] as AnyObject
+				let temp = self.convertKtoC(kelvin: _temp as! Double)
+				let _windSpeed = windDict[self.responseKeys.windSpeed] as AnyObject
+				let windSpeed = String(format: "%.0f", _windSpeed as! Double)
+				let icon = (weatherArr[0][self.responseKeys.weatherIcon] as AnyObject) as! String
+				
+				self.currentData = CurrentWeather(context: CoreDataStack.shared.context)
+				self.currentData?.city = place
+				self.currentData?.temp = Int16(temp)
+				self.currentData?.windSpeed = windSpeed
+				self.currentData?.icon = icon
+				self.currentData?.hour = Date() as NSDate?
+				
+				DispatchQueue.main.async {
+				CoreDataStack.shared.saveContext()
+			}
+			
 		}
 		
 	}
 	
+	func getForecastWeatherData(_ completionForForecastWeather: @escaping (_ forecastData: [ForecastWeatherData]?, _ error: Error?) -> Void) {
+		
+		forecastWeatherData = []
+		taskForGetMethod(kind: "forecast") { (results, error) in
+			
+			guard error == nil else {
+				return
+			}
+			
+			guard let cityDict = results?["city"] as? Dict,
+				let listArr = results?["list"] as? [Dict] else {
+					return
+			}
+			
+			let place = (cityDict["name"] as AnyObject) as! String
+			
+			for listDict in listArr  {
+				guard let dateDle = listDict["dt"] as? Double,
+					let mainDict = listDict["main"] as? Dict,
+					let weatherArr = listDict["weather"] as? [Dict],
+					let timeStr = listDict["dt_txt"] as? String else {
+						return
+				}
+				
+				let date = (Date(timeIntervalSince1970: dateDle)) as NSDate
+				let min_Temp = mainDict["temp_min"] as AnyObject
+				let max_Temp = mainDict["temp_max"] as AnyObject
+				let minTemp = self.convertKtoC(kelvin: min_Temp as! Double)
+				let maxTemp = self.convertKtoC(kelvin: max_Temp as! Double)
+				let icon = weatherArr[0]["icon"] as! String
+				let hours = self.extractHours(timeText: timeStr)
+				
+				let forecastWeather = ForecastWeatherData(city: place, date: date as Date, minTemp: minTemp, maxTemp: maxTemp, icon: icon, hours: hours)
+				self.forecastWeatherData?.append(forecastWeather)
+				
+			}
+			DispatchQueue.main.async {
+				print("data: \(self.forecastWeatherData?.count)")
+				completionForForecastWeather(self.forecastWeatherData, nil)
+			}
+
+		}
+	}
+	
+	func getCurrentWeatherData(_ completionForCurrentWeather: @escaping (_ currentData: CurrentWeatherData?, _ error: Error?) -> Void) {
+		
+		
+		taskForGetMethod(kind: "current") { (results, error) in
+			
+				guard error == nil else {
+					return
+				}
+				guard let weatherArr = results?[self.responseKeys.weather] as? [Dict],
+					let mainDict = results?[self.responseKeys.dataMain] as? Dict,
+					let windDict = results?[self.responseKeys.wind] as? Dict else {
+						return
+				}
+				let place = (results?[self.responseKeys.cityName] as AnyObject) as! String
+				let _temp = mainDict[self.responseKeys.temperature] as AnyObject
+				let temp = self.convertKtoC(kelvin: _temp as! Double)
+				let _windSpeed = windDict[self.responseKeys.windSpeed] as AnyObject
+				let windSpeed = String(format: "%.0f", _windSpeed as! Double)
+				let icon = (weatherArr[0][self.responseKeys.weatherIcon] as AnyObject) as! String
+				
+				let currentWeather = CurrentWeatherData(city: "\(place)", temp: temp, windSpeed: "\(windSpeed)", icon: "\(icon)")
+				self.currentWeatherData = currentWeather
+			
+				DispatchQueue.main.async {
+				completionForCurrentWeather(self.currentWeatherData, nil)
+				
+			}
+		}
+		
+	}
+
 	
 	// Mark: Task for GET Method
 	func taskForGetMethod(kind: String, completionHandlerForGet: @escaping (_ results: AnyObject?, _ error : NSError?) -> Void) {
@@ -153,7 +231,7 @@ class OpenWeatherClient {
 		var parameters: Dict
 		// From user location
 		do {
-			print("checkpoint 1")
+			
 			location = try CoreDataStack.shared.context.fetch(Locations.fetch)
 		} catch {
 			fatalError("no info")
@@ -172,6 +250,7 @@ class OpenWeatherClient {
 			
 			// From selected or saved location
 		} else {
+			print("if saved, then here")
 			let latitude = location?.last?.latitude
 			let longitude = location?.last?.longitude
 			parameters = [

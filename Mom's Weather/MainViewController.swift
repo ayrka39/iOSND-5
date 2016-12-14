@@ -31,11 +31,13 @@ class MainViewController: UIViewController {
 	@IBOutlet weak var morningDataSpinner: UIActivityIndicatorView!
 	@IBOutlet weak var afternoonDataSpinner: UIActivityIndicatorView!
 	@IBOutlet weak var offlineLabel: UILabel!
+	@IBOutlet weak var accessWarningLabel: UILabel!
 	
 	let locationManager = CLLocationManager()
 	var currentLocation: CLLocation?
 	var fetchedCurrentData = [CurrentWeather]()
 	var fetchedUpcomingData = [Forecast]()
+	var location = [Locations]()
 	let openWeatherClient = OpenWeatherClient.shared
 	let changeColor = ChangeColor.shared
 	let coreDataStack = CoreDataStack.shared
@@ -47,7 +49,7 @@ class MainViewController: UIViewController {
 		
 		showCurrentDate()
 		locationManagerSetting()
-		requestAccessToLocation()
+		chooseWeatherData()
 
 	}
 	
@@ -56,7 +58,7 @@ class MainViewController: UIViewController {
 		fetchCurrentData()
 		fetchForecastData()
 		deleteCurrentRecords()
-		getCurrentWeatherData()
+		getCurrentData()
 		getUpcomingData()
 		offlineWarning()
 		
@@ -88,11 +90,37 @@ class MainViewController: UIViewController {
 		
 	}
 	
+	func getCurrentWeatherData() {
+		currentDataSpinner.startAnimating()
+		
+		openWeatherClient.getCurrentWeatherData { (currentData, error) in
+		 
+			DispatchQueue.main.async {
+			guard let currentData = currentData else {
+				return
+			}
+			self.place.text = currentData.city
+			self.currentTemperature.text = "\(currentData.temp!)"
+			self.currentWeatherIcon.image = UIImage(named: currentData.icon!)
+			self.currentWindSpeed.text = currentData.windSpeed
+			
+			self.changeColor.viewColor(icon: self.currentWeatherIcon.image!, view: self.currentWeatherView)
+			self.changeColor.viewGradient(view: self.currentWeatherView, start: 1.0, end: 0.1)
+			}
+		}
+		self.currentDataSpinner.stopAnimating()
+		
+		}
+
+
 	func getCurrentData() {
 		currentDataSpinner.startAnimating()
-		print("checkpoint 4")
-		openWeatherClient.getCurrentWeatherData()
 		
+		openWeatherClient.getCurrentData()
+		
+		DispatchQueue.main.async {
+			
+			print("fetched no: \(self.fetchedCurrentData.count)")
 			guard let currentData = self.fetchedCurrentData.last else {
 				return /* check an error - index out of range*/
 			}
@@ -103,38 +131,85 @@ class MainViewController: UIViewController {
 			
 			self.changeColor.viewColor(icon: self.currentWeatherIcon.image!, view: self.currentWeatherView)
 			self.changeColor.viewGradient(view: self.currentWeatherView, start: 1.0, end: 0.1)
-			
-		
-		self.currentDataSpinner.stopAnimating()
-		
 		}
-
-	
-
-	func getCurrentWeatherData() {
-		currentDataSpinner.startAnimating()
-		print("checkpoint 3")
-		openWeatherClient.getCurrentWeatherData()
 		
-		DispatchQueue.main.async {
-		
-			print("fetched no: \(self.fetchedCurrentData.count)")
-			guard let currentData = self.fetchedCurrentData.last else {
-				return /* check an error - index out of range*/
-			}
-				self.place.text = currentData.city
-				self.currentTemperature.text = "\(currentData.temp)"
-				self.currentWeatherIcon.image = UIImage(named: currentData.icon!)
-				self.currentWindSpeed.text = currentData.windSpeed
-				
-				self.changeColor.viewColor(icon: self.currentWeatherIcon.image!, view: self.currentWeatherView)
-				self.changeColor.viewGradient(view: self.currentWeatherView, start: 1.0, end: 0.1)
-	
-		}
 		self.currentDataSpinner.stopAnimating()
 
 	}
 	
+	func getUpcomingWeatherData() {
+		
+		morningDataSpinner.startAnimating()
+		afternoonDataSpinner.startAnimating()
+		
+		openWeatherClient.getForecastWeatherData { (forecastData, error) in
+			
+			DispatchQueue.main.async {
+			guard let forecastData = forecastData else {
+				return
+			}
+			print("upcoming Weather data")
+			guard let sixthHour = forecastData.index(where: {$0.hours == "06"}),
+				let ninthHour = forecastData.index(where: {$0.hours == "09"}),
+				let twelfthHour = forecastData.index(where: {$0.hours == "12"}),
+				let fifteenthHour = forecastData.index(where: {$0.hours == "15"}) else {
+					return
+			}
+			
+			var altered12 = 0
+			var altered15 = 0
+			
+			if ninthHour > fifteenthHour && ninthHour < twelfthHour {
+				altered12 = twelfthHour
+				altered15 = twelfthHour + 1
+			} else if ninthHour > fifteenthHour && ninthHour > twelfthHour {
+				altered12 = twelfthHour + 8
+				altered15 = twelfthHour + 9
+			} else {
+				altered12 = twelfthHour
+				altered15 = fifteenthHour
+			}
+			
+			let sixTemp = forecastData[sixthHour].minTemp!
+			let nineTemp = forecastData[ninthHour].maxTemp!
+			let noonMinTemp = forecastData[altered12].minTemp!
+			let noonMaxTemp = forecastData[altered12].maxTemp!
+			let threeMinTemp = forecastData[altered15].minTemp!
+			let threeMaxTemp = forecastData[altered15].maxTemp!
+			let afternoonMinTemp = min(noonMinTemp, threeMinTemp)
+			let afternoonMaxTemp = max(noonMaxTemp, threeMaxTemp)
+			let nineIcon = forecastData[ninthHour].icon!
+			let noonIcon = forecastData[twelfthHour].icon!
+			
+			if sixTemp == nineTemp {
+				self.morningTemperature.text = "\(sixTemp)°"
+			} else {
+				let MorningMinTemp = min(sixTemp, nineTemp)
+				let MorningMaxTemp = max(sixTemp, nineTemp)
+				self.morningTemperature.text = "\(MorningMinTemp)° ~ \(MorningMaxTemp)°"
+			}
+			
+			if afternoonMinTemp == afternoonMaxTemp {
+				self.afternoonTemperature.text = "\(afternoonMinTemp)°"
+			} else {
+				self.afternoonTemperature.text = "\(afternoonMinTemp)° ~ \(afternoonMaxTemp)°"
+			}
+			
+			self.morningIcon.image = UIImage(named: nineIcon)
+			self.afternoonIcon.image = UIImage(named: noonIcon)
+			
+			self.changeColor.viewColor(icon: self.morningIcon.image!, view: self.morningView)
+			self.changeColor.viewGradient(view: self.morningView, start: 0.1, end: 1.0)
+			
+			self.changeColor.viewColor(icon: self.afternoonIcon.image!, view: self.afternoonView)
+			self.changeColor.viewGradient(view: self.afternoonView, start: 0.1, end: 1.0)
+			}
+		}
+		
+		morningDataSpinner.stopAnimating()
+		afternoonDataSpinner.stopAnimating()
+	}
+
 
 	func getUpcomingData() {
 		
@@ -144,8 +219,6 @@ class MainViewController: UIViewController {
 		openWeatherClient.getForecastData()
 				
 		DispatchQueue.main.async {
-			
-			print("fetchedUpcomingData: \(self.fetchedUpcomingData.count)")
 			
 			guard let sixthHour = self.fetchedUpcomingData.index(where: {$0.hours == "06"}),
 				let ninthHour = self.fetchedUpcomingData.index(where: {$0.hours == "09"}),
@@ -218,10 +291,11 @@ extension MainViewController: CLLocationManagerDelegate {
 		}
 		
 		currentLocation = location
-		print("checkpoint 2")
+		
 		let savedLocation = Locations(context: coreDataStack.context)
 		savedLocation.latitude = (currentLocation?.coordinate.latitude)!
 		savedLocation.longitude = (currentLocation?.coordinate.longitude)!
+		print("lat: \(savedLocation.latitude), \(savedLocation.longitude)")
 		DispatchQueue.main.async {
 			self.coreDataStack.saveContext()
 		}
@@ -232,6 +306,11 @@ extension MainViewController: CLLocationManagerDelegate {
 		if status == .authorizedWhenInUse {
 			locationManager.startMonitoringSignificantLocationChanges()
 			connectionWarningView.isHidden = true
+		} else if status == .denied {
+			connectionWarningView.isHidden = false
+			alertToLocationAccessDenied()
+		} else {
+			connectionWarningView.isHidden = false
 		}
 	}
 	

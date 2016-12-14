@@ -21,6 +21,7 @@ class DetailedViewController: UIViewController {
 	@IBOutlet weak var calendarTableView: UITableView!
 	@IBOutlet weak var thingsView: UIView!
 	@IBOutlet weak var connectionWarningView: UIView!
+	@IBOutlet weak var warningLabel: UILabel!
 
 	var changeColor = ChangeColor.shared
 	var forecasts: [Forecast]?
@@ -28,15 +29,13 @@ class DetailedViewController: UIViewController {
 	var calendars: [EKCalendar]?
 	var events: [EKEvent]?
 	var fetchedController: NSFetchedResultsController<Forecast>?
-	var blockOperations: BlockOperation!
-	var shouldReloadCollectionView = false
 	let sectionInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 2.0)
 	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 	
-		connectionWarning()		
+		connectionWarning()
 	}
 	
 	override func viewWillAppear(_ animated: Bool) {
@@ -53,24 +52,14 @@ class DetailedViewController: UIViewController {
 		let fetchRequest = Forecast.fetch
 		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: true)]
 		
-//		do {
-//			forecasts = try CoreDataStack.shared.context.fetch(fetchRequest)
-//			
-//		} catch {
-//			let error = error as Error
-//			fatalError("problem is: \(error)")
-//		}
-		fetchedController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: CoreDataStack.shared.context, sectionNameKeyPath: nil, cacheName: nil)
-		
-		
 		do {
-			try fetchedController?.performFetch()
-			print("fetched?: \(fetchedController?.sections?[0].numberOfObjects)")
+			forecasts = try CoreDataStack.shared.context.fetch(fetchRequest)
+			
 		} catch {
 			let error = error as Error
 			fatalError("problem is: \(error)")
 		}
-		self.fetchedController?.delegate = self
+
 	}
 	
 	func changeThings() {
@@ -112,8 +101,7 @@ class DetailedViewController: UIViewController {
 					imageOne.image = #imageLiteral(resourceName: "anything")
 				}
 	
-			print("icon: \(self.forecasts?[1])")
-			self.changeColor.viewColor(icon: UIImage(named: (self.forecasts?[1].icon)!)!, view: self.thingsView)
+			self.changeColor.viewColor(icon: UIImage(named: self.weatherIconForViewColor(forecastIndex: 1))!, view: self.thingsView)
 			self.changeColor.viewGradient(view: self.thingsView, start: 1.0, end: 0.1)
 		}
 	}
@@ -124,23 +112,29 @@ extension DetailedViewController: UICollectionViewDelegate, UICollectionViewData
 	
 	func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
 		
-		guard let count = fetchedController?.sections?[0].numberOfObjects else {
+		guard let count = forecasts?.count else {
 			return 0
 		}
 		return count
 		
 	}
-
+	
+	
+	
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "weatherCell", for: indexPath) as! WeatherCell
 		
-		let forecast = fetchedController?.object(at: indexPath)
-		print("forecast: \(forecast)")
-		cell.configureCollectionViewCell(hourly: forecast!)
-		self.location.text = forecast?.city
-		self.date.text = self.extractDate(dateNumber: forecast?.date as! Date)
-	
-		self.changeColor.viewColor(icon: UIImage(named: (forecast?.icon!)!)!, view: cell.hourView)
+		guard let forecast = forecasts?[indexPath.item] else {
+			return cell
+		}
+		/* check an error - Index out of range */
+		cell.configureCollectionViewCell(hourly: forecast)
+		
+		self.location.text = forecast.city
+		self.date.text = showCurrentDate()
+//			self.extractDate(dateNumber: forecast.date as! Date)
+		
+		self.changeColor.viewColor(icon: UIImage(named: weatherIconForViewColor(forecastIndex: 1))!, view: cell.hourView)
 		self.changeColor.viewGradient(view: cell.hourView, start: 0.1, end: 1.0)
 		
 		return cell
@@ -195,33 +189,9 @@ extension DetailedViewController: UITableViewDelegate, UITableViewDataSource {
 	}
 	
 	func calendarViewColor() {
-		self.changeColor.viewColor(icon: UIImage(named: "02d")!, view: calenrView)
+		self.changeColor.viewColor(icon: UIImage(named: weatherIconForViewColor(forecastIndex: 2))!, view: calenrView)
 		self.changeColor.viewGradient(view: calenrView, start: 0.1, end: 1.0)
 	}
 	
 }
 
-extension DetailedViewController: NSFetchedResultsControllerDelegate {
-	
-	func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		self.shouldReloadCollectionView = false
-		self.blockOperations = BlockOperation()
-	}
-	
-	func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-		
-		if type == NSFetchedResultsChangeType.update {
-			collectionView.reloadItems(at: [indexPath!])
-		}
-	}
-	
-	func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-		if shouldReloadCollectionView {
-			collectionView.reloadData()
-		} else {
-			collectionView.performBatchUpdates({ 
-				self.blockOperations.start()
-			}, completion: nil)
-		}
-	}
-}

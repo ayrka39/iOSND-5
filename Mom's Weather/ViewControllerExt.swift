@@ -54,6 +54,9 @@ extension MainViewController {
 		} else {
 			locationManager.delegate = self
 			locationManager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
+			locationManager.requestWhenInUseAuthorization()
+			locationManager.startMonitoringSignificantLocationChanges()
+			connectionWarningView.isHidden = true
 		}
 		
 	}
@@ -80,8 +83,7 @@ extension MainViewController {
 
 				return
 			}
-			print("//1")
-			openWeatherClient.getCurrentWeatherData()
+			openWeatherClient.getCurrentData()
 			
 		}
 	}
@@ -102,6 +104,20 @@ extension MainViewController {
 		}
 	}
 	
+	func chooseWeatherData() {
+		do {
+			location = try CoreDataStack.shared.context.fetch(Locations.fetch)
+		} catch {
+			fatalError("no info")
+		}
+		if location.last?.latitude == nil {
+			print("which one: \(location.last?.latitude)")
+			getUpcomingWeatherData()
+			getCurrentWeatherData()
+			
+			return
+		}
+	}
 	
 	func showCurrentDate() -> String {
 		
@@ -153,8 +169,12 @@ extension MainViewController {
 	
 	func offlineWarning() {
 		if Reachability.isInternetAvailable() == false {
-			offlineLabel.isHidden = false
-			offlineLabel.text = "Offline. Last Update: \(extractDate(dateNumber: (fetchedCurrentData.last?.hour)!)) "
+			if fetchedCurrentData.last?.hour == nil {
+				return
+			} else {
+				offlineLabel.isHidden = false
+				offlineLabel.text = "Offline. Last Update: \(extractDate(dateNumber: (fetchedCurrentData.last?.hour)!))" /*\(extractDate(dateNumber: (fetchedCurrentData.last?.hour)!))*/
+			}
 		} else {
 			offlineLabel.isHidden = true
 		}
@@ -177,10 +197,18 @@ extension DetailedViewController {
 			} else {
 				print("access alert")
 				connectionWarningView.isHidden = false
+				warningLabel.text = "Internet connection \nappears to be offline.\n\nPlease check if Internet connection is available."
 			}
 		} else {
-			connectionWarningView.isHidden = true
-			calendarAuthStatus()
+			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+				calendarAuthStatus()
+				connectionWarningView.isHidden = true
+			} else {
+				print("warningView-detail")
+				connectionWarningView.isHidden = false
+				warningLabel.text = "Access to user location was denied.\n\nThis app requires location service to use it"
+			}
+
 		}
 
 	}
@@ -280,6 +308,18 @@ extension DetailedViewController {
 		
 	}
 	
+	func showCurrentDate() -> String {
+		
+		let currentDate = Date()
+		let dateFormatter = DateFormatter()
+		dateFormatter.dateFormat = "EEE, MMM dd"
+		let today = dateFormatter.string(from: currentDate)
+		self.date.text = today
+		
+		return self.date.text!
+	}
+
+	
 	// get an icon for view color in case of offline
 	func weatherIconForViewColor(forecastIndex: Int) -> String {
 		if Reachability.isInternetAvailable() == true {
@@ -295,21 +335,29 @@ extension DetailedViewController {
 extension SearchViewController {
 	
 	func connectionWarning() {
-		
+			
 		if Reachability.isInternetAvailable() == false {
-			print("reachability works - search")
+			
 			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
 				connectionWarningView.isHidden = true
 				print("fallthrough")
 			} else {
 				print("access alert")
 				connectionWarningView.isHidden = false
+				accessWarningLabel.text = "Internet connection \nappears to be offline.\n\nPlease check if Internet connection is available."
 			}
 		} else {
-			connectionWarningView.isHidden = true
+			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+				
+				connectionWarningView.isHidden = true
+			} else {
+				print("warningView-detail")
+				connectionWarningView.isHidden = false
+				accessWarningLabel.text = "Access to user location was denied.\n\nThis app requires location service to use it"
+			}
 			
 		}
-		
+	
 	}
 	
 	func searchControllerSetting() {

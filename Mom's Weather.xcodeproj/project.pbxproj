@@ -11,6 +11,8 @@
 		3C0503981DEBAFAB0066E9A4 /* SearchCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C0503971DEBAFAB0066E9A4 /* SearchCell.swift */; };
 		3C05039C1DEC91E70066E9A4 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C05039B1DEC91E70066E9A4 /* Reachability.swift */; };
 		3C44CDC71DEA4ADF00F23805 /* weatherForMom.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3C44CDC51DEA4ADF00F23805 /* weatherForMom.xcdatamodeld */; };
+		3C5DE81F1E00DD0B007C2C03 /* CurrentWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5DE81E1E00DD0B007C2C03 /* CurrentWeatherData.swift */; };
+		3C5DE8211E019518007C2C03 /* ForecastWeatherData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C5DE8201E019518007C2C03 /* ForecastWeatherData.swift */; };
 		3CA887881DF8BB1B00F97E02 /* FavoriteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CA887871DF8BB1B00F97E02 /* FavoriteCell.swift */; };
 		3CC1F31D1DC89DB20014DA37 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC1F31C1DC89DB20014DA37 /* Constants.swift */; };
 		3CC1F31F1DC89E1C0014DA37 /* OpenWeatherClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CC1F31E1DC89E1C0014DA37 /* OpenWeatherClient.swift */; };
@@ -32,6 +34,8 @@
 		3C0503971DEBAFAB0066E9A4 /* SearchCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchCell.swift; sourceTree = "<group>"; };
 		3C05039B1DEC91E70066E9A4 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
 		3C44CDC61DEA4ADF00F23805 /* weatherForMom.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = weatherForMom.xcdatamodel; sourceTree = "<group>"; };
+		3C5DE81E1E00DD0B007C2C03 /* CurrentWeatherData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrentWeatherData.swift; sourceTree = "<group>"; };
+		3C5DE8201E019518007C2C03 /* ForecastWeatherData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForecastWeatherData.swift; sourceTree = "<group>"; };
 		3CA887871DF8BB1B00F97E02 /* FavoriteCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FavoriteCell.swift; sourceTree = "<group>"; };
 		3CC1F31C1DC89DB20014DA37 /* Constants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		3CC1F31E1DC89E1C0014DA37 /* OpenWeatherClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenWeatherClient.swift; sourceTree = "<group>"; };
@@ -105,6 +109,8 @@
 				3C44CDC51DEA4ADF00F23805 /* weatherForMom.xcdatamodeld */,
 				3CC1F31C1DC89DB20014DA37 /* Constants.swift */,
 				3C05039B1DEC91E70066E9A4 /* Reachability.swift */,
+				3C5DE81E1E00DD0B007C2C03 /* CurrentWeatherData.swift */,
+				3C5DE8201E019518007C2C03 /* ForecastWeatherData.swift */,
 				3CC1F31E1DC89E1C0014DA37 /* OpenWeatherClient.swift */,
 			);
 			name = Model;
@@ -223,7 +229,9 @@
 			files = (
 				3C0503961DEBA5B20066E9A4 /* SearchViewController.swift in Sources */,
 				3C0503981DEBAFAB0066E9A4 /* SearchCell.swift in Sources */,
+				3C5DE81F1E00DD0B007C2C03 /* CurrentWeatherData.swift in Sources */,
 				3CECB2B01DC7A23900672697 /* MainViewController.swift in Sources */,
+				3C5DE8211E019518007C2C03 /* ForecastWeatherData.swift in Sources */,
 				3CD2ECB81DE11BC30015D63D /* CalendarCell.swift in Sources */,
 				3CD83DE31DDE9B2600A927A7 /* ChangeColor.swift in Sources */,
 				3CD83DE11DDE7A2500A927A7 /* ViewControllerExt.swift in Sources */,
@@ -358,6 +366,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = B75WVW9MW4;
 				INFOPLIST_FILE = "Mom's Weather/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.david.Mom-s-Weather";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -371,6 +380,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = B75WVW9MW4;
 				INFOPLIST_FILE = "Mom's Weather/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.2;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.david.Mom-s-Weather";
 				PRODUCT_NAME = "$(TARGET_NAME)";

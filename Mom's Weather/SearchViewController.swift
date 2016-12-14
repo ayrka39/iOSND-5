@@ -19,6 +19,7 @@ class SearchViewController: UIViewController {
 	@IBOutlet weak var favTableView: UITableView!
 	@IBOutlet weak var searchSpinner: UIActivityIndicatorView!
 	@IBOutlet weak var connectionWarningView: UIView!
+	@IBOutlet weak var accessWarningLabel: UILabel!
 
 	
 	var searchCompleter = MKLocalSearchCompleter()
@@ -71,6 +72,7 @@ extension SearchViewController: MKLocalSearchCompleterDelegate {
 	
 	func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
 		print("failed")
+		connectionWarning()
 	}
 }
 
@@ -201,25 +203,25 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 	func getCoordinates(place: String) {
 		let geocoder = CLGeocoder()
 		self.searchSpinner.startAnimating()
+		
 		geocoder.geocodeAddressString(place) { (placemarks, error) in
-			
-			guard let placemark = placemarks?.last else {
-				return
-			}
-			let location = Locations(context: self.coreDataStack.context)
-			location.latitude = (placemark.location?.coordinate.latitude)!
-			location.longitude = (placemark.location?.coordinate.longitude)!
-			print("location: \(location.latitude), \(location.longitude)")
-			self.searchSpinner.stopAnimating()
-			
+							guard let placemark = placemarks?.last else {
+					return
+				}
+				let location = Locations(context: self.coreDataStack.context)
+				location.latitude = (placemark.location?.coordinate.latitude)!
+				location.longitude = (placemark.location?.coordinate.longitude)!
+				print("location: \(location.latitude), \(location.longitude)")
+				self.searchSpinner.stopAnimating()
 			DispatchQueue.main.async {
+
 				self.coreDataStack.saveContext()
 				let destination = self.storyboard?.instantiateViewController(withIdentifier: "tabBarController") as! UITabBarController
 				self.present(destination, animated: true, completion: nil)
 			}
 			
 		}
-
+		
 	}
 
 }
