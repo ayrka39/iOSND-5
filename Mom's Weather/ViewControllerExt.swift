@@ -338,14 +338,14 @@ extension SearchViewController {
 			
 		if Reachability.isInternetAvailable() == false {
 			
-			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
+/*			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
 				connectionWarningView.isHidden = true
 				print("fallthrough")
-			} else {
+			} else { */
 				print("access alert")
 				connectionWarningView.isHidden = false
 				accessWarningLabel.text = "Internet connection \nappears to be offline.\n\nPlease check if Internet connection is available."
-			}
+			//			}
 		} else {
 			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
 				

@@ -35,8 +35,7 @@ class SearchViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
-		connectionWarning()
+
 		searchCompleter.delegate = self
 		searchController.loadViewIfNeeded()
 		searchControllerSetting()
@@ -44,6 +43,11 @@ class SearchViewController: UIViewController {
 		searchSpinner.stopAnimating()
 //		tableViewColor()
 		
+	}
+	
+	override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+		connectionWarning()
 	}
 }
 
