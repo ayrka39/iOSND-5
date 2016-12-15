@@ -33,6 +33,7 @@ class OpenWeatherClient {
 		taskForGetMethod(kind: "forecast") { (results, error) in
 			
 			guard error == nil else {
+				print(error?.localizedDescription)
 				return
 			}
 			
@@ -78,9 +79,10 @@ class OpenWeatherClient {
 	func getCurrentData() {
 		print("getWeather?")
 		
-		taskForGetMethod(kind: "current") { (results, error) in
-			
+			taskForGetMethod(kind: "current") { (results, error) in
+		
 				guard error == nil else {
+					print(error?.localizedDescription)
 					return
 				}
 				guard let weatherArr = results?[self.responseKeys.weather] as? [Dict],
@@ -107,7 +109,7 @@ class OpenWeatherClient {
 			}
 			
 		}
-		
+	
 	}
 	
 	func getForecastWeatherData(_ completionForForecastWeather: @escaping (_ forecastData: [ForecastWeatherData]?, _ error: Error?) -> Void) {
@@ -116,6 +118,8 @@ class OpenWeatherClient {
 		taskForGetMethod(kind: "forecast") { (results, error) in
 			
 			guard error == nil else {
+				completionForForecastWeather(nil, error)
+				print(error?.localizedDescription)
 				return
 			}
 			
@@ -155,11 +159,12 @@ class OpenWeatherClient {
 	}
 	
 	func getCurrentWeatherData(_ completionForCurrentWeather: @escaping (_ currentData: CurrentWeatherData?, _ error: Error?) -> Void) {
-		
-		
+
 		taskForGetMethod(kind: "current") { (results, error) in
 			
 				guard error == nil else {
+					completionForCurrentWeather(nil, error)
+					print(error?.localizedDescription)
 					return
 				}
 				guard let weatherArr = results?[self.responseKeys.weather] as? [Dict],
@@ -194,15 +199,15 @@ class OpenWeatherClient {
 		let task = URLSession.shared.dataTask(with: request as URLRequest) { (data, response, error) in
 			
 			guard error == nil else {
-				print("an error with request: \(error)")
+				print(error?.localizedDescription)
 				return
 			}
 			guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200 && statusCode <= 299 else {
-				print("request returned a status code other than 2xx")
+				print("request return \((response as? HTTPURLResponse)?.statusCode)")
 				return
 			}
 			guard let data = data else {
-				print("no data was returned")
+				print("no data is available")
 				return
 			}
 			self.parseData(data, completionHandlerForParseData: completionHandlerForGet)
@@ -220,7 +225,8 @@ class OpenWeatherClient {
 		do {
 			jsonResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject?
 		} catch {
-			fatalError("could not parse the data")
+			let error = error as Error
+			print(error.localizedDescription)
 		}
 		
 		completionHandlerForParseData(jsonResult, nil)
@@ -234,7 +240,8 @@ class OpenWeatherClient {
 			
 			location = try CoreDataStack.shared.context.fetch(Locations.fetch)
 		} catch {
-			fatalError("no info")
+			let error = error as Error
+			print(error.localizedDescription)
 		}
 		print("saved? \(location?.last?.latitude)")
 		
@@ -303,5 +310,8 @@ class OpenWeatherClient {
 		
 		return hour
 	}
-
+	
+	
 }
+
+

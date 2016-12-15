@@ -29,7 +29,7 @@ extension MainViewController {
 				print("alerted")
 				alertToLocationAccessDenied()
 			case .restricted:
-				if Reachability.isInternetAvailable() == false {
+				if !Reachability.isInternetAvailable() {
 					alertToLocationAccessRestricted()
 				}
 			default:
@@ -39,7 +39,7 @@ extension MainViewController {
 	
 	func locationManagerSetting() {
 		
-		if Reachability.isInternetAvailable() == false {
+		if !Reachability.isInternetAvailable() {
 			print("reachability works")
 			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
 				connectionWarningView.isHidden = true
@@ -57,6 +57,7 @@ extension MainViewController {
 			locationManager.requestWhenInUseAuthorization()
 			locationManager.startMonitoringSignificantLocationChanges()
 			connectionWarningView.isHidden = true
+			
 		}
 		
 	}
@@ -67,10 +68,11 @@ extension MainViewController {
 
 	func deleteCurrentRecords() {
 		
-		if Reachability.isInternetAvailable() == true {
+		if Reachability.isInternetAvailable() {
 			let object = fetchedCurrentData.last
-			print("obj: \(object)")
+			print("obj: \(object?.city)")
 			guard object == nil else {
+			
 				let currentDataRequest = CurrentWeather.fetch
 				do {
 					let deleteRequest = NSBatchDeleteRequest(fetchRequest: currentDataRequest as! NSFetchRequest<NSFetchRequestResult>)
@@ -78,11 +80,13 @@ extension MainViewController {
 					
 					coreDataStack.saveContext()
 				} catch {
-					fatalError("Failed removing saved records")
+					let error = error as Error
+					displayAlert(error.localizedDescription, alertHandler: nil, presentationCompletionHandler: nil)
 				}
 
 				return
 			}
+			
 			openWeatherClient.getCurrentData()
 			
 		}
@@ -90,7 +94,7 @@ extension MainViewController {
 	
 	func deleteForecastRecords() {
 		
-		if Reachability.isInternetAvailable() == true {
+		if Reachability.isInternetAvailable() {
 			
 			let forecastDataRequest = Forecast.fetch
 			
@@ -99,7 +103,8 @@ extension MainViewController {
 				_ = try CoreDataStack.shared.context.execute(deleteRequest)
 				
 			} catch {
-				fatalError("Failed removing saved records")
+				let error = error as Error
+				displayAlert(error.localizedDescription, alertHandler: nil, presentationCompletionHandler: nil)
 			}
 		}
 	}
@@ -168,16 +173,27 @@ extension MainViewController {
 	}
 	
 	func offlineWarning() {
-		if Reachability.isInternetAvailable() == false {
+		if !Reachability.isInternetAvailable()  {
 			if fetchedCurrentData.last?.hour == nil {
 				return
 			} else {
+				displayAlert("The Internet Connection \nappears to be offline", alertHandler: nil, presentationCompletionHandler: nil)
 				offlineLabel.isHidden = false
 				offlineLabel.text = "Offline. Last Update: \(extractDate(dateNumber: (fetchedCurrentData.last?.hour)!))" /*\(extractDate(dateNumber: (fetchedCurrentData.last?.hour)!))*/
 			}
 		} else {
 			offlineLabel.isHidden = true
 		}
+	}
+	
+	func upcompingSpinnerStart() {
+		self.morningDataSpinner.startAnimating()
+		self.afternoonDataSpinner.startAnimating()
+	}
+	
+	func upcompingSpinnerStop() {
+		self.morningDataSpinner.stopAnimating()
+		self.afternoonDataSpinner.stopAnimating()
 	}
 
 }
@@ -189,7 +205,7 @@ extension DetailedViewController {
 	
 	func connectionWarning() {
 		
-		if Reachability.isInternetAvailable() == false {
+		if !Reachability.isInternetAvailable() {
 			
 			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
 				connectionWarningView.isHidden = true
@@ -241,7 +257,7 @@ extension DetailedViewController {
 				})
 			} else {
 				DispatchQueue.main.async(execute: {
-					print("no calendar")
+					self.displayAlert((error?.localizedDescription)!, alertHandler: nil, presentationCompletionHandler: nil)
 				})
 			}
 		})
@@ -322,7 +338,8 @@ extension DetailedViewController {
 	
 	// get an icon for view color in case of offline
 	func weatherIconForViewColor(forecastIndex: Int) -> String {
-		if Reachability.isInternetAvailable() == true {
+		if Reachability.isInternetAvailable() {
+			print("forecasts: \(self.forecasts?[forecastIndex].icon)")
 			return (self.forecasts?[forecastIndex].icon)!
 		} else {
 			return "0\(forecastIndex)d"
@@ -335,17 +352,13 @@ extension DetailedViewController {
 extension SearchViewController {
 	
 	func connectionWarning() {
+		
+		if !Reachability.isInternetAvailable() {
+
+			print("access alert")
+			connectionWarningView.isHidden = false
+			accessWarningLabel.text = "Internet connection \nappears to be offline.\n\nPlease check if Internet connection is available."
 			
-		if Reachability.isInternetAvailable() == false {
-			
-/*			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
-				connectionWarningView.isHidden = true
-				print("fallthrough")
-			} else { */
-				print("access alert")
-				connectionWarningView.isHidden = false
-				accessWarningLabel.text = "Internet connection \nappears to be offline.\n\nPlease check if Internet connection is available."
-			//			}
 		} else {
 			if CLLocationManager.authorizationStatus() == .authorizedWhenInUse {
 				
@@ -357,7 +370,7 @@ extension SearchViewController {
 			}
 			
 		}
-	
+		
 	}
 	
 	func searchControllerSetting() {

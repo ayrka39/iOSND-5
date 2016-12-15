@@ -31,7 +31,9 @@ class SearchViewController: UIViewController {
 	var placeToDelete: Favorite?
 	let coreDataStack = CoreDataStack.shared
 	var changeColor = ChangeColor.shared
+	var openWeatherClient = OpenWeatherClient.shared
 	var controller: NSFetchedResultsController<Favorite>!
+	
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
@@ -206,10 +208,17 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 	
 	func getCoordinates(place: String) {
 		let geocoder = CLGeocoder()
-		self.searchSpinner.startAnimating()
 		
-		geocoder.geocodeAddressString(place) { (placemarks, error) in
-							guard let placemark = placemarks?.last else {
+		DispatchQueue.main.async {
+			
+			geocoder.geocodeAddressString(place) { (placemarks, error) in
+				guard error == nil else {
+					self.displayAlert((error?.localizedDescription)!, alertHandler: nil, presentationCompletionHandler: nil)
+					self.searchSpinner.stopAnimating()
+					return
+				}
+				self.searchSpinner.startAnimating()
+				guard let placemark = placemarks?.last else {
 					return
 				}
 				let location = Locations(context: self.coreDataStack.context)
@@ -217,17 +226,18 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 				location.longitude = (placemark.location?.coordinate.longitude)!
 				print("location: \(location.latitude), \(location.longitude)")
 				self.searchSpinner.stopAnimating()
-			DispatchQueue.main.async {
-
+				
 				self.coreDataStack.saveContext()
+				self.openWeatherClient.getCurrentData()
+				self.openWeatherClient.getForecastData()
 				let destination = self.storyboard?.instantiateViewController(withIdentifier: "tabBarController") as! UITabBarController
 				self.present(destination, animated: true, completion: nil)
-			}
 			
+			}
 		}
 		
 	}
-
+	
 }
 
 extension SearchViewController: NSFetchedResultsControllerDelegate {
@@ -245,7 +255,7 @@ extension SearchViewController: NSFetchedResultsControllerDelegate {
 			try controller.performFetch()
 		} catch {
 			let error = error as Error
-			fatalError("problem is: \(error)")
+			displayAlert(error.localizedDescription, alertHandler: nil, presentationCompletionHandler: nil)
 		}
 		self.controller.delegate = self
 	}

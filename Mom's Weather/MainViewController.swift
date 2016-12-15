@@ -46,7 +46,6 @@ class MainViewController: UIViewController {
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
-		
 		showCurrentDate()
 		locationManagerSetting()
 		chooseWeatherData()
@@ -60,18 +59,22 @@ class MainViewController: UIViewController {
 		deleteCurrentRecords()
 		getCurrentData()
 		getUpcomingData()
-		offlineWarning()
 		
+	}
+	
+	override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+		offlineWarning()
 	}
 	
 	func fetchCurrentData() {
 		let fetchRequest = CurrentWeather.fetch
 		do {
 			fetchedCurrentData = try CoreDataStack.shared.context.fetch(fetchRequest)
-			
+			print("wait: \(fetchedCurrentData.first?.city)")
 		} catch {
 			let error = error as Error
-			fatalError("problem is: \(error)")
+			displayAlert(error.localizedDescription, alertHandler: nil, presentationCompletionHandler: nil)
 		}
 	}
 	
@@ -82,44 +85,48 @@ class MainViewController: UIViewController {
 		
 		do {
 			fetchedUpcomingData = try self.coreDataStack.context.fetch(fetchRequest)
-			
+			print("fetchedUp: \(fetchedUpcomingData.last?.city) \(fetchedUpcomingData.count)")
 		} catch {
 			let error = error as Error
-			fatalError("problem is: \(error)")
+			displayAlert(error.localizedDescription, alertHandler: nil, presentationCompletionHandler: nil)
 		}
 		
 	}
 	
 	func getCurrentWeatherData() {
-		currentDataSpinner.startAnimating()
-		
+
 		openWeatherClient.getCurrentWeatherData { (currentData, error) in
 		 
 			DispatchQueue.main.async {
-			guard let currentData = currentData else {
-				return
-			}
-			self.place.text = currentData.city
-			self.currentTemperature.text = "\(currentData.temp!)"
-			self.currentWeatherIcon.image = UIImage(named: currentData.icon!)
-			self.currentWindSpeed.text = currentData.windSpeed
-			
-			self.changeColor.viewColor(icon: self.currentWeatherIcon.image!, view: self.currentWeatherView)
-			self.changeColor.viewGradient(view: self.currentWeatherView, start: 1.0, end: 0.1)
+				guard error == nil else {
+					self.displayAlert((error?.localizedDescription)!, alertHandler: nil, presentationCompletionHandler: nil)
+					self.currentDataSpinner.stopAnimating()
+					return
+				}
+				self.currentDataSpinner.startAnimating()
+				guard let currentData = currentData else {
+					return
+				}
+				self.place.text = currentData.city
+				self.currentTemperature.text = "\(currentData.temp!)"
+				self.currentWeatherIcon.image = UIImage(named: currentData.icon!)
+				self.currentWindSpeed.text = currentData.windSpeed
+				self.currentDataSpinner.stopAnimating()
+				self.changeColor.viewColor(icon: self.currentWeatherIcon.image!, view: self.currentWeatherView)
+				self.changeColor.viewGradient(view: self.currentWeatherView, start: 1.0, end: 0.1)
 			}
 		}
-		self.currentDataSpinner.stopAnimating()
 		
-		}
+		
+	}
 
 
 	func getCurrentData() {
-		currentDataSpinner.startAnimating()
 		
 		openWeatherClient.getCurrentData()
 		
 		DispatchQueue.main.async {
-			
+			self.currentDataSpinner.startAnimating()
 			print("fetched no: \(self.fetchedCurrentData.count)")
 			guard let currentData = self.fetchedCurrentData.last else {
 				return /* check an error - index out of range*/
@@ -128,98 +135,99 @@ class MainViewController: UIViewController {
 			self.currentTemperature.text = "\(currentData.temp)"
 			self.currentWeatherIcon.image = UIImage(named: currentData.icon!)
 			self.currentWindSpeed.text = currentData.windSpeed
-			
+			self.currentDataSpinner.stopAnimating()
 			self.changeColor.viewColor(icon: self.currentWeatherIcon.image!, view: self.currentWeatherView)
 			self.changeColor.viewGradient(view: self.currentWeatherView, start: 1.0, end: 0.1)
 		}
-		
-		self.currentDataSpinner.stopAnimating()
-
 	}
 	
 	func getUpcomingWeatherData() {
-		
-		morningDataSpinner.startAnimating()
-		afternoonDataSpinner.startAnimating()
-		
+
 		openWeatherClient.getForecastWeatherData { (forecastData, error) in
 			
 			DispatchQueue.main.async {
-			guard let forecastData = forecastData else {
-				return
-			}
-			print("upcoming Weather data")
-			guard let sixthHour = forecastData.index(where: {$0.hours == "06"}),
-				let ninthHour = forecastData.index(where: {$0.hours == "09"}),
-				let twelfthHour = forecastData.index(where: {$0.hours == "12"}),
-				let fifteenthHour = forecastData.index(where: {$0.hours == "15"}) else {
+				
+				guard error == nil else {
+					self.displayAlert((error?.localizedDescription)!, alertHandler: nil, presentationCompletionHandler: nil)
+					self.upcompingSpinnerStop()
 					return
-			}
-			
-			var altered12 = 0
-			var altered15 = 0
-			
-			if ninthHour > fifteenthHour && ninthHour < twelfthHour {
-				altered12 = twelfthHour
-				altered15 = twelfthHour + 1
-			} else if ninthHour > fifteenthHour && ninthHour > twelfthHour {
-				altered12 = twelfthHour + 8
-				altered15 = twelfthHour + 9
-			} else {
-				altered12 = twelfthHour
-				altered15 = fifteenthHour
-			}
-			
-			let sixTemp = forecastData[sixthHour].minTemp!
-			let nineTemp = forecastData[ninthHour].maxTemp!
-			let noonMinTemp = forecastData[altered12].minTemp!
-			let noonMaxTemp = forecastData[altered12].maxTemp!
-			let threeMinTemp = forecastData[altered15].minTemp!
-			let threeMaxTemp = forecastData[altered15].maxTemp!
-			let afternoonMinTemp = min(noonMinTemp, threeMinTemp)
-			let afternoonMaxTemp = max(noonMaxTemp, threeMaxTemp)
-			let nineIcon = forecastData[ninthHour].icon!
-			let noonIcon = forecastData[twelfthHour].icon!
-			
-			if sixTemp == nineTemp {
-				self.morningTemperature.text = "\(sixTemp)°"
-			} else {
-				let MorningMinTemp = min(sixTemp, nineTemp)
-				let MorningMaxTemp = max(sixTemp, nineTemp)
-				self.morningTemperature.text = "\(MorningMinTemp)° ~ \(MorningMaxTemp)°"
-			}
-			
-			if afternoonMinTemp == afternoonMaxTemp {
-				self.afternoonTemperature.text = "\(afternoonMinTemp)°"
-			} else {
-				self.afternoonTemperature.text = "\(afternoonMinTemp)° ~ \(afternoonMaxTemp)°"
-			}
-			
-			self.morningIcon.image = UIImage(named: nineIcon)
-			self.afternoonIcon.image = UIImage(named: noonIcon)
-			
-			self.changeColor.viewColor(icon: self.morningIcon.image!, view: self.morningView)
-			self.changeColor.viewGradient(view: self.morningView, start: 0.1, end: 1.0)
-			
-			self.changeColor.viewColor(icon: self.afternoonIcon.image!, view: self.afternoonView)
-			self.changeColor.viewGradient(view: self.afternoonView, start: 0.1, end: 1.0)
+				}
+				
+				guard let forecastData = forecastData else {
+					return
+				}
+				print("upcoming Weather data")
+				guard let sixthHour = forecastData.index(where: {$0.hours == "06"}),
+					let ninthHour = forecastData.index(where: {$0.hours == "09"}),
+					let twelfthHour = forecastData.index(where: {$0.hours == "12"}),
+					let fifteenthHour = forecastData.index(where: {$0.hours == "15"}) else {
+						return
+				}
+				
+				var altered12 = 0
+				var altered15 = 0
+				
+				if ninthHour > fifteenthHour && ninthHour < twelfthHour {
+					altered12 = twelfthHour
+					altered15 = twelfthHour + 1
+				} else if ninthHour > fifteenthHour && ninthHour > twelfthHour {
+					altered12 = twelfthHour + 8
+					altered15 = twelfthHour + 9
+				} else {
+					altered12 = twelfthHour
+					altered15 = fifteenthHour
+				}
+				
+				let sixTemp = forecastData[sixthHour].minTemp!
+				let nineTemp = forecastData[ninthHour].maxTemp!
+				let noonMinTemp = forecastData[altered12].minTemp!
+				let noonMaxTemp = forecastData[altered12].maxTemp!
+				let threeMinTemp = forecastData[altered15].minTemp!
+				let threeMaxTemp = forecastData[altered15].maxTemp!
+				let afternoonMinTemp = min(noonMinTemp, threeMinTemp)
+				let afternoonMaxTemp = max(noonMaxTemp, threeMaxTemp)
+				let nineIcon = forecastData[ninthHour].icon!
+				let noonIcon = forecastData[twelfthHour].icon!
+				
+				if sixTemp == nineTemp {
+					self.morningTemperature.text = "\(sixTemp)°"
+				} else {
+					let MorningMinTemp = min(sixTemp, nineTemp)
+					let MorningMaxTemp = max(sixTemp, nineTemp)
+					self.morningTemperature.text = "\(MorningMinTemp)° ~ \(MorningMaxTemp)°"
+				}
+				
+				if afternoonMinTemp == afternoonMaxTemp {
+					self.afternoonTemperature.text = "\(afternoonMinTemp)°"
+				} else {
+					self.afternoonTemperature.text = "\(afternoonMinTemp)° ~ \(afternoonMaxTemp)°"
+				}
+				
+				self.morningIcon.image = UIImage(named: nineIcon)
+				self.afternoonIcon.image = UIImage(named: noonIcon)
+				
+				self.upcompingSpinnerStop()
+				
+				self.changeColor.viewColor(icon: self.morningIcon.image!, view: self.morningView)
+				self.changeColor.viewGradient(view: self.morningView, start: 0.1, end: 1.0)
+				
+				self.changeColor.viewColor(icon: self.afternoonIcon.image!, view: self.afternoonView)
+				self.changeColor.viewGradient(view: self.afternoonView, start: 0.1, end: 1.0)
 			}
 		}
-		
-		morningDataSpinner.stopAnimating()
-		afternoonDataSpinner.stopAnimating()
-	}
 
+	}
+	
 
 	func getUpcomingData() {
 		
 		deleteForecastRecords()
-		morningDataSpinner.startAnimating()
-		afternoonDataSpinner.startAnimating()
 		openWeatherClient.getForecastData()
 				
 		DispatchQueue.main.async {
 			
+			self.upcompingSpinnerStart()
+
 			guard let sixthHour = self.fetchedUpcomingData.index(where: {$0.hours == "06"}),
 				let ninthHour = self.fetchedUpcomingData.index(where: {$0.hours == "09"}),
 				let twelfthHour = self.fetchedUpcomingData.index(where: {$0.hours == "12"}),
@@ -269,6 +277,8 @@ class MainViewController: UIViewController {
 			self.morningIcon.image = UIImage(named: nineIcon)
 			self.afternoonIcon.image = UIImage(named: noonIcon)
 			
+			self.upcompingSpinnerStop()
+			
 			self.changeColor.viewColor(icon: self.morningIcon.image!, view: self.morningView)
 			self.changeColor.viewGradient(view: self.morningView, start: 0.1, end: 1.0)
 			
@@ -276,8 +286,7 @@ class MainViewController: UIViewController {
 			self.changeColor.viewGradient(view: self.afternoonView, start: 0.1, end: 1.0)
 			
 		}
-		morningDataSpinner.stopAnimating()
-		afternoonDataSpinner.stopAnimating()
+		
 	}
 
 }
@@ -314,6 +323,16 @@ extension MainViewController: CLLocationManagerDelegate {
 		}
 	}
 	
+}
+
+// MARK: Error alert
+extension UIViewController {
+	
+	func displayAlert(_ message: String, alertHandler: ((UIAlertAction) -> Void)?, presentationCompletionHandler: (() -> Void)?) {
+		let alert = UIAlertController(title: "", message: message, preferredStyle: .alert)
+		alert.addAction(UIAlertAction(title: "OK", style: .default, handler: alertHandler))
+		present(alert, animated: true, completion: presentationCompletionHandler)
+	}
 }
 
 // MARK: FetchRequest extension

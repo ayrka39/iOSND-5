@@ -34,9 +34,9 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="flX-QC-Ide" userLabel="Place">
-                                <rect key="frame" x="160" y="28" width="144" height="21"/>
+                                <rect key="frame" x="149" y="28" width="155" height="21"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="144" id="TEN-D3-waQ"/>
+                                    <constraint firstAttribute="width" constant="155" id="TEN-D3-waQ"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="21"/>
                                 <color key="textColor" red="0.291687272" green="0.49858660999999999" blue="0.73920625939999995" alpha="1" colorSpace="calibratedRGB"/>
@@ -507,7 +507,7 @@ Please check if Internet connection is available.</string>
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleAspectFit" reuseIdentifier="weatherCell" id="PHJ-pU-ZHt" customClass="WeatherCell" customModule="Mom_s_Weather" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="-1" width="50" height="130"/>
+                                        <rect key="frame" x="0.0" y="-0.5" width="50" height="130"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
                                             <rect key="frame" x="0.0" y="0.0" width="50" height="130"/>

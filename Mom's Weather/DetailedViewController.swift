@@ -57,7 +57,7 @@ class DetailedViewController: UIViewController {
 			
 		} catch {
 			let error = error as Error
-			fatalError("problem is: \(error)")
+			displayAlert(error.localizedDescription, alertHandler: nil, presentationCompletionHandler: nil)
 		}
 
 	}
@@ -119,8 +119,7 @@ extension DetailedViewController: UICollectionViewDelegate, UICollectionViewData
 		
 	}
 	
-	
-	
+
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "weatherCell", for: indexPath) as! WeatherCell
 		
