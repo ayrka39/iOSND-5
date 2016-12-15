@@ -116,8 +116,7 @@ class MainViewController: UIViewController {
 				self.changeColor.viewGradient(view: self.currentWeatherView, start: 1.0, end: 0.1)
 			}
 		}
-		
-		
+
 	}
 
 
@@ -126,6 +125,7 @@ class MainViewController: UIViewController {
 		openWeatherClient.getCurrentData()
 		
 		DispatchQueue.main.async {
+			
 			self.currentDataSpinner.startAnimating()
 			print("fetched no: \(self.fetchedCurrentData.count)")
 			guard let currentData = self.fetchedCurrentData.last else {
@@ -140,6 +140,7 @@ class MainViewController: UIViewController {
 			self.changeColor.viewGradient(view: self.currentWeatherView, start: 1.0, end: 0.1)
 		}
 	}
+	
 	
 	func getUpcomingWeatherData() {
 
@@ -157,6 +158,7 @@ class MainViewController: UIViewController {
 					return
 				}
 				print("upcoming Weather data")
+				self.upcompingSpinnerStart()
 				guard let sixthHour = forecastData.index(where: {$0.hours == "06"}),
 					let ninthHour = forecastData.index(where: {$0.hours == "09"}),
 					let twelfthHour = forecastData.index(where: {$0.hours == "12"}),
@@ -223,11 +225,11 @@ class MainViewController: UIViewController {
 		
 		deleteForecastRecords()
 		openWeatherClient.getForecastData()
-				
+		
 		DispatchQueue.main.async {
 			
 			self.upcompingSpinnerStart()
-
+			
 			guard let sixthHour = self.fetchedUpcomingData.index(where: {$0.hours == "06"}),
 				let ninthHour = self.fetchedUpcomingData.index(where: {$0.hours == "09"}),
 				let twelfthHour = self.fetchedUpcomingData.index(where: {$0.hours == "12"}),
@@ -286,10 +288,10 @@ class MainViewController: UIViewController {
 			self.changeColor.viewGradient(view: self.afternoonView, start: 0.1, end: 1.0)
 			
 		}
-		
 	}
-
 }
+
+
 
 
 extension MainViewController: CLLocationManagerDelegate {

@@ -57,9 +57,12 @@ class SearchViewController: UIViewController {
 extension SearchViewController: UISearchBarDelegate {
 	
 	func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-		searchCompleter.queryFragment = searchController.searchBar.text!
-		searchCompleter.filterType = .locationsOnly
-		
+		DispatchQueue.main.async {
+			self.searchSpinner.startAnimating()
+			self.searchCompleter.queryFragment = self.searchController.searchBar.text!
+			self.searchCompleter.filterType = .locationsOnly
+		}
+
 	}
 	
 	func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
@@ -71,9 +74,12 @@ extension SearchViewController: UISearchBarDelegate {
 extension SearchViewController: MKLocalSearchCompleterDelegate {
 	
 	func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
-	
-		searchResults = completer.results
-		searchTableView.reloadData()
+		DispatchQueue.main.async {
+			self.searchResults = completer.results
+			self.searchTableView.reloadData()
+			self.searchSpinner.stopAnimating()
+		}
+
 	}
 	
 	func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
@@ -196,13 +202,18 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 	
 	func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
 		if tableView.tag == 1 {
-			let cell = searchTableView.cellForRow(at: indexPath) as! SearchCell
-			getCoordinates(place: "\(cell.placeLabel.text!)")
+			DispatchQueue.main.async {
+				self.searchSpinner.startAnimating()
+				let cell = self.searchTableView.cellForRow(at: indexPath) as! SearchCell
+				self.getCoordinates(place: "\(cell.placeLabel.text!)")
+			}
 
 		} else {
-		let cell = favTableView.cellForRow(at: indexPath) as! FavoriteCell
-			getCoordinates(place: "\(cell.favoriteLabel.text!)")
-
+			DispatchQueue.main.async {
+				self.searchSpinner.startAnimating()
+				let cell = self.favTableView.cellForRow(at: indexPath) as! FavoriteCell
+				self.getCoordinates(place: "\(cell.favoriteLabel.text!)")
+			}
 		}
 	}
 	
@@ -214,7 +225,6 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 			geocoder.geocodeAddressString(place) { (placemarks, error) in
 				guard error == nil else {
 					self.displayAlert((error?.localizedDescription)!, alertHandler: nil, presentationCompletionHandler: nil)
-					self.searchSpinner.stopAnimating()
 					return
 				}
 				self.searchSpinner.startAnimating()
@@ -225,11 +235,11 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 				location.latitude = (placemark.location?.coordinate.latitude)!
 				location.longitude = (placemark.location?.coordinate.longitude)!
 				print("location: \(location.latitude), \(location.longitude)")
-				self.searchSpinner.stopAnimating()
 				
 				self.coreDataStack.saveContext()
 				self.openWeatherClient.getCurrentData()
 				self.openWeatherClient.getForecastData()
+				self.searchSpinner.stopAnimating()
 				let destination = self.storyboard?.instantiateViewController(withIdentifier: "tabBarController") as! UITabBarController
 				self.present(destination, animated: true, completion: nil)
 			

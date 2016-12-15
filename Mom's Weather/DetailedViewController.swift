@@ -73,7 +73,7 @@ class DetailedViewController: UIViewController {
 				
 				guard let ninthHour = self.forecasts?.index(where: { $0.hours == "09" }),
 					let fifteenthHour = self.forecasts?.index(where: { $0.hours == "15" }) else {
-						print("failed?")
+						self.displayAlert("Network appears to be slow. \n\nPlease try to fetch data again", alertHandler: nil, presentationCompletionHandler: nil)
 						return
 				}
 				var altered = 0
@@ -122,8 +122,8 @@ extension DetailedViewController: UICollectionViewDelegate, UICollectionViewData
 
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "weatherCell", for: indexPath) as! WeatherCell
-		
 		guard let forecast = forecasts?[indexPath.item] else {
+			
 			return cell
 		}
 		/* check an error - Index out of range */

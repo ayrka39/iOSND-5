@@ -27,6 +27,7 @@ class OpenWeatherClient {
 	
 		
 	func getForecastData() {
+		//_ completionForForecastWeather: @escaping (_ forecastData: [Forecast]?, _ error: Error?) -> Void) {
 
 		forecastData = [Forecast(context: CoreDataStack.shared.context)]
 		
@@ -72,11 +73,13 @@ class OpenWeatherClient {
 			}
 			DispatchQueue.main.async {
 				CoreDataStack.shared.saveContext()
+				//completionForForecastWeather(self.forecastData, nil)
 			}
 		}
 	}
 	
 	func getCurrentData() {
+		//_ completionForCurrentWeather: @escaping (_ currentData: CurrentWeather?, _ error: Error?) -> Void) {
 		print("getWeather?")
 		
 			taskForGetMethod(kind: "current") { (results, error) in
@@ -105,7 +108,8 @@ class OpenWeatherClient {
 				self.currentData?.hour = Date() as NSDate?
 				
 				DispatchQueue.main.async {
-				CoreDataStack.shared.saveContext()
+					CoreDataStack.shared.saveContext()
+					//completionForCurrentWeather(self.currentData, nil)
 			}
 			
 		}
@@ -199,7 +203,7 @@ class OpenWeatherClient {
 		let task = URLSession.shared.dataTask(with: request as URLRequest) { (data, response, error) in
 			
 			guard error == nil else {
-				print(error?.localizedDescription)
+				completionHandlerForGet(nil, error as? NSError)
 				return
 			}
 			guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200 && statusCode <= 299 else {

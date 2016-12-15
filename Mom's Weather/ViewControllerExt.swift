@@ -338,12 +338,11 @@ extension DetailedViewController {
 	
 	// get an icon for view color in case of offline
 	func weatherIconForViewColor(forecastIndex: Int) -> String {
-		if Reachability.isInternetAvailable() {
-			print("forecasts: \(self.forecasts?[forecastIndex].icon)")
-			return (self.forecasts?[forecastIndex].icon)!
-		} else {
-			return "0\(forecastIndex)d"
+		guard let forecasts = self.forecasts, forecastIndex < forecasts.count,
+			let icon = forecasts[forecastIndex].icon else {
+				return "0\(forecastIndex)d"
 		}
+		return icon
 	}
 }
 
@@ -368,9 +367,7 @@ extension SearchViewController {
 				connectionWarningView.isHidden = false
 				accessWarningLabel.text = "Access to user location was denied.\n\nThis app requires location service to use it"
 			}
-			
 		}
-		
 	}
 	
 	func searchControllerSetting() {
