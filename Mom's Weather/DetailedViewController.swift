@@ -122,23 +122,23 @@ extension DetailedViewController: UICollectionViewDelegate, UICollectionViewData
 
 	func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 		let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "weatherCell", for: indexPath) as! WeatherCell
+
 		guard let forecast = forecasts?[indexPath.item] else {
 			
 			return cell
 		}
-		/* check an error - Index out of range */
+		
 		cell.configureCollectionViewCell(hourly: forecast)
 		
 		self.location.text = forecast.city
 		self.date.text = showCurrentDate()
-//			self.extractDate(dateNumber: forecast.date as! Date)
-		
+			//self.extractDate(dateNumber: forecast.date as! Date)
+
 		self.changeColor.viewColor(icon: UIImage(named: weatherIconForViewColor(forecastIndex: 1))!, view: cell.hourView)
 		self.changeColor.viewGradient(view: cell.hourView, start: 0.1, end: 1.0)
 		
 		return cell
 	}
-
 
 }
 
@@ -181,7 +181,7 @@ extension DetailedViewController: UITableViewDelegate, UITableViewDataSource {
 		DispatchQueue.main.async {
 			let event = events[(indexPath as NSIndexPath).row]
 			let eventDate = self.showEventDate(startDate: event.startDate)
-			cell.textLabel?.text = "✓ \(event.title) \(eventDate)"
+			cell.textLabel?.text = "• \(event.title) \(eventDate)"
 		
 		}
 		return cell

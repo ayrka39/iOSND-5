@@ -83,7 +83,6 @@ extension SearchViewController: MKLocalSearchCompleterDelegate {
 	}
 	
 	func completer(_ completer: MKLocalSearchCompleter, didFailWithError error: Error) {
-		print("failed")
 		connectionWarning()
 	}
 }
@@ -144,7 +143,6 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 			
 			let favorite = controller.object(at: indexPath)
 			cell.configureCell(favorite: favorite)
-			print("favoriteLabel: \(cell.favoriteLabel.text!)")
 			
 			cell.tapAction = { cell in
 				self.placeToDelete = self.controller.object(at: indexPath)
@@ -234,7 +232,6 @@ extension SearchViewController: UITableViewDelegate, UITableViewDataSource {
 				let location = Locations(context: self.coreDataStack.context)
 				location.latitude = (placemark.location?.coordinate.latitude)!
 				location.longitude = (placemark.location?.coordinate.longitude)!
-				print("location: \(location.latitude), \(location.longitude)")
 				
 				self.coreDataStack.saveContext()
 				self.openWeatherClient.getCurrentData()

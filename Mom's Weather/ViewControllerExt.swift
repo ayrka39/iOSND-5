@@ -70,7 +70,7 @@ extension MainViewController {
 		
 		if Reachability.isInternetAvailable() {
 			let object = fetchedCurrentData.last
-			print("obj: \(object?.city)")
+	
 			guard object == nil else {
 			
 				let currentDataRequest = CurrentWeather.fetch
@@ -113,10 +113,11 @@ extension MainViewController {
 		do {
 			location = try CoreDataStack.shared.context.fetch(Locations.fetch)
 		} catch {
-			fatalError("no info")
+			let error = error as Error
+			self.displayAlert(error.localizedDescription, alertHandler: nil, presentationCompletionHandler: nil)
 		}
 		if location.last?.latitude == nil {
-			print("which one: \(location.last?.latitude)")
+			
 			getUpcomingWeatherData()
 			getCurrentWeatherData()
 			
@@ -137,7 +138,6 @@ extension MainViewController {
 	
 	// get a formatted date value from parsed data
 	func extractDate(dateNumber: NSDate) -> String {
-//		let convertedDate = Date(timeIntervalSince1970: dateNumber)
 		let dateFormatter = DateFormatter()
 		dateFormatter.dateFormat = "MMM dd HH:mm"
 		let date = dateFormatter.string(from: dateNumber as Date)
@@ -179,7 +179,7 @@ extension MainViewController {
 			} else {
 				displayAlert("The Internet Connection \nappears to be offline", alertHandler: nil, presentationCompletionHandler: nil)
 				offlineLabel.isHidden = false
-				offlineLabel.text = "Offline. Last Update: \(extractDate(dateNumber: (fetchedCurrentData.last?.hour)!))" /*\(extractDate(dateNumber: (fetchedCurrentData.last?.hour)!))*/
+				offlineLabel.text = "Offline. Last Update: \(extractDate(dateNumber: (fetchedCurrentData.last?.hour)!))"
 			}
 		} else {
 			offlineLabel.isHidden = true
@@ -267,7 +267,11 @@ extension DetailedViewController {
 	func loadEvents() {
 
 		let startDate = Date()
-		let endDate = Date(timeIntervalSinceNow: 60*60*24*30)
+		let minute = 60
+		let hour = minute * 60
+		let day = hour * 24
+		let week = day * 7
+		let endDate = Date(timeIntervalSinceNow: TimeInterval(week * 4))
 		let eventsPredicate = eventStore.predicateForEvents(withStart: startDate, end: endDate, calendars: calendars)
 			
 		self.events = eventStore.events(matching: eventsPredicate).sorted() { (event1: EKEvent, event2: EKEvent) -> Bool in

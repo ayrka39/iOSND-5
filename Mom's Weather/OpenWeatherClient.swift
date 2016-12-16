@@ -23,11 +23,10 @@ class OpenWeatherClient {
 	var currentWeatherData: CurrentWeatherData?
 	var forecastWeatherData: [ForecastWeatherData]?
 	
-	// Mark: Get necessary data
+	// MARK: Get necessary data
 	
 		
 	func getForecastData() {
-		//_ completionForForecastWeather: @escaping (_ forecastData: [Forecast]?, _ error: Error?) -> Void) {
 
 		forecastData = [Forecast(context: CoreDataStack.shared.context)]
 		
@@ -79,8 +78,6 @@ class OpenWeatherClient {
 	}
 	
 	func getCurrentData() {
-		//_ completionForCurrentWeather: @escaping (_ currentData: CurrentWeather?, _ error: Error?) -> Void) {
-		print("getWeather?")
 		
 			taskForGetMethod(kind: "current") { (results, error) in
 		
@@ -155,7 +152,7 @@ class OpenWeatherClient {
 				
 			}
 			DispatchQueue.main.async {
-				print("data: \(self.forecastWeatherData?.count)")
+				print("data: \(self.forecastWeatherData?.description)")
 				completionForForecastWeather(self.forecastWeatherData, nil)
 			}
 
@@ -221,7 +218,7 @@ class OpenWeatherClient {
 		task.resume()
 	}
 	
-	// Mark: Parse data
+	// MARK: Parse data
 	fileprivate func parseData(_ data: Data, completionHandlerForParseData: (_ result: AnyObject?, _ error: NSError?) -> Void) {
 		
 		var jsonResult: AnyObject?
@@ -236,7 +233,7 @@ class OpenWeatherClient {
 		completionHandlerForParseData(jsonResult, nil)
 	}
 	
-	// Mark: Get OpenWeather URL from parameters
+	// MARK: Get OpenWeather URL from parameters
 	fileprivate func getOpenWeatherURL(kind: String) -> URL {
 		var parameters: Dict
 		// From user location
@@ -247,12 +244,11 @@ class OpenWeatherClient {
 			let error = error as Error
 			print(error.localizedDescription)
 		}
-		print("saved? \(location?.last?.latitude)")
-		
+			
 		if location?.last?.latitude == nil {
 			
 			let currentLocation = CLLocationManager().location?.coordinate
-			print("current: \(currentLocation)")
+			
 			parameters = [
 				keys.latitude: currentLocation?.latitude as AnyObject,
 				keys.longitude: currentLocation?.longitude as AnyObject,
@@ -261,7 +257,7 @@ class OpenWeatherClient {
 			
 			// From selected or saved location
 		} else {
-			print("if saved, then here")
+			
 			let latitude = location?.last?.latitude
 			let longitude = location?.last?.longitude
 			parameters = [
@@ -292,7 +288,7 @@ class OpenWeatherClient {
 		return components.url!
 
 	}
-	// Mark: Convert Kevin value to Celcius
+	// MARK: Convert Kevin value to Celcius
 	func convertKtoC(kelvin: Double) -> Int {
 		
 		var celcius: String!

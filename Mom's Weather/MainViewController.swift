@@ -69,9 +69,10 @@ class MainViewController: UIViewController {
 	
 	func fetchCurrentData() {
 		let fetchRequest = CurrentWeather.fetch
+		fetchRequest.sortDescriptors = [NSSortDescriptor(key: "hour", ascending: true)]
 		do {
 			fetchedCurrentData = try CoreDataStack.shared.context.fetch(fetchRequest)
-			print("wait: \(fetchedCurrentData.first?.city)")
+			
 		} catch {
 			let error = error as Error
 			displayAlert(error.localizedDescription, alertHandler: nil, presentationCompletionHandler: nil)
@@ -85,7 +86,7 @@ class MainViewController: UIViewController {
 		
 		do {
 			fetchedUpcomingData = try self.coreDataStack.context.fetch(fetchRequest)
-			print("fetchedUp: \(fetchedUpcomingData.last?.city) \(fetchedUpcomingData.count)")
+			
 		} catch {
 			let error = error as Error
 			displayAlert(error.localizedDescription, alertHandler: nil, presentationCompletionHandler: nil)
@@ -127,9 +128,9 @@ class MainViewController: UIViewController {
 		DispatchQueue.main.async {
 			
 			self.currentDataSpinner.startAnimating()
-			print("fetched no: \(self.fetchedCurrentData.count)")
+			
 			guard let currentData = self.fetchedCurrentData.last else {
-				return /* check an error - index out of range*/
+				return 
 			}
 			self.place.text = currentData.city
 			self.currentTemperature.text = "\(currentData.temp)"
@@ -157,7 +158,7 @@ class MainViewController: UIViewController {
 				guard let forecastData = forecastData else {
 					return
 				}
-				print("upcoming Weather data")
+				
 				self.upcompingSpinnerStart()
 				guard let sixthHour = forecastData.index(where: {$0.hours == "06"}),
 					let ninthHour = forecastData.index(where: {$0.hours == "09"}),
