@@ -17,11 +17,11 @@ This app uses OpenWeatherMap API for its weather data.
 For more details, you can check https://openweathermap.org/api
 
 ### Screenshots ###
-![main](https://cloud.githubusercontent.com/assets/16446932/21084810/7e0eb75c-c011-11e6-8601-e05271490245.png)
+![main](https://cloud.githubusercontent.com/assets/16446932/21261721/d4251294-c395-11e6-811c-636de733b8d0.png)
 * Main page - shows current and tomorrow's data
 
-![details](https://cloud.githubusercontent.com/assets/16446932/21084811/7e0f7390-c011-11e6-84dc-7b292efe21a6.png)
+![details](https://cloud.githubusercontent.com/assets/16446932/21261725/d79ea070-c395-11e6-8f5f-907525d5cce4.png)
 * Detailed page - five days of data, reminder and calendar events
 
-![search](https://cloud.githubusercontent.com/assets/16446932/21084812/7e113bd0-c011-11e6-8db8-480814d343c8.png)
+![search](https://cloud.githubusercontent.com/assets/16446932/21261729/da5e61ba-c395-11e6-8d7e-03dfebaafe4c.png)
 * Search page - able to search for places and store favorite
