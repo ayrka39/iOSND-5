@@ -783,6 +783,7 @@ Please check if Internet connection is available.</string>
                                                 <constraint firstAttribute="trailing" secondItem="Csl-N8-VSE" secondAttribute="trailing" constant="8" id="k5x-cf-HNs"/>
                                             </constraints>
                                         </tableViewCellContentView>
+                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         <connections>
                                             <outlet property="deleteButton" destination="Csl-N8-VSE" id="3o6-av-K62"/>
                                             <outlet property="favoriteLabel" destination="GEF-4N-miT" id="gCZ-hn-E25"/>
