@@ -23,5 +23,5 @@ For more details, you can check https://openweathermap.org/api
 ![details](https://cloud.githubusercontent.com/assets/16446932/21261725/d79ea070-c395-11e6-8f5f-907525d5cce4.png)
 * Detailed page - five days of data, reminder and calendar events
 
-![search](https://cloud.githubusercontent.com/assets/16446932/21261729/da5e61ba-c395-11e6-8d7e-03dfebaafe4c.png)
+![search](https://cloud.githubusercontent.com/assets/16446932/21386731/e910bf06-c77c-11e6-9d6a-699386082869.png)
 * Search page - able to search for places and store favorite
