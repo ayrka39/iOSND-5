@@ -131,10 +131,11 @@ extension DetailedViewController: UICollectionViewDelegate, UICollectionViewData
 		cell.configureCollectionViewCell(hourly: forecast)
 		
 		self.location.text = forecast.city
-		self.date.text = showCurrentDate()
+		self.date.text = self.extractDate(dateNumber: forecast.date as! Date)
+			//showCurrentDate()
 			//self.extractDate(dateNumber: forecast.date as! Date)
 
-		self.changeColor.viewColor(icon: UIImage(named: weatherIconForViewColor(forecastIndex: 1))!, view: cell.hourView)
+		self.changeColor.viewColor(icon: UIImage(named: self.weatherIconForViewColor(forecastIndex: 1))!, view: cell.hourView)
 		self.changeColor.viewGradient(view: cell.hourView, start: 0.1, end: 1.0)
 		
 		return cell

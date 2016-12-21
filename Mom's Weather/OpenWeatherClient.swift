@@ -28,8 +28,8 @@ class OpenWeatherClient {
 		
 	func getForecastData() {
 
-		forecastData = [Forecast(context: CoreDataStack.shared.context)]
-		
+		//forecastData = [Forecast(context: CoreDataStack.shared.context)]
+		forecastData = [Forecast]()
 		taskForGetMethod(kind: "forecast") { (results, error) in
 			
 			guard error == nil else {
@@ -67,12 +67,13 @@ class OpenWeatherClient {
 				forecast.maxTemp = Int16(maxTemp)
 				forecast.icon = icon 
 				forecast.hours = hours
+				
 				self.forecastData!.append(forecast)
 				
 			}
 			DispatchQueue.main.async {
 				CoreDataStack.shared.saveContext()
-				//completionForForecastWeather(self.forecastData, nil)
+				
 			}
 		}
 	}

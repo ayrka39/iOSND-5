@@ -43,13 +43,14 @@ class SearchViewController: UIViewController {
 		searchControllerSetting()
 		fetchData()
 		searchSpinner.stopAnimating()
-//		tableViewColor()
+		
 		
 	}
 	
 	override func viewDidAppear(_ animated: Bool) {
 		super.viewDidAppear(animated)
 		connectionWarning()
+		tableViewColor()
 	}
 }
 
