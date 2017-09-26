@@ -30,7 +30,7 @@ extension OpenWeatherClient {
 	
 	// Mark: OpenWeather Parameter Values
 	struct OpenWeatherParameterValues {
-		static let APIKey = "75aa6c1561d6b3519a0f382721f44fdc"
+		static let APIKey = "yourApiKey"
 	}
 	
 	// Mark: OpenWeather Response Keys
